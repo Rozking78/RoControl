@@ -1,0 +1,354 @@
+{
+  "show_info": {
+    "name": "Demo Show",
+    "version": "0.1.0",
+    "created": "2025-11-13",
+    "description": "Example lighting show for Steam Deck DMX Controller"
+  },
+  "network_config": {
+    "artnet": {
+      "enabled": true,
+      "broadcast_address": "2.255.255.255",
+      "port": 6454,
+      "refresh_rate": 44
+    },
+    "sacn": {
+      "enabled": false,
+      "universe_start": 1
+    }
+  },
+  "fixtures": [
+    {
+      "id": "wash1",
+      "name": "Stage Wash L",
+      "manufacturer": "Generic",
+      "model": "LED PAR RGBW",
+      "dmx_mode": "7-Channel",
+      "universe": 0,
+      "address": 1,
+      "channel_count": 7,
+      "channels": {
+        "1": "Dimmer",
+        "2": "Red",
+        "3": "Green",
+        "4": "Blue",
+        "5": "White",
+        "6": "Strobe",
+        "7": "Programs"
+      },
+      "position": {
+        "x": -2.0,
+        "y": 3.0,
+        "z": 0.0
+      }
+    },
+    {
+      "id": "wash2",
+      "name": "Stage Wash R",
+      "manufacturer": "Generic",
+      "model": "LED PAR RGBW",
+      "dmx_mode": "7-Channel",
+      "universe": 0,
+      "address": 8,
+      "channel_count": 7,
+      "channels": {
+        "1": "Dimmer",
+        "2": "Red",
+        "3": "Green",
+        "4": "Blue",
+        "5": "White",
+        "6": "Strobe",
+        "7": "Programs"
+      },
+      "position": {
+        "x": 2.0,
+        "y": 3.0,
+        "z": 0.0
+      }
+    },
+    {
+      "id": "spot1",
+      "name": "Moving Spot 1",
+      "manufacturer": "Generic",
+      "model": "Moving Head Spot",
+      "dmx_mode": "16-Channel",
+      "universe": 0,
+      "address": 15,
+      "channel_count": 16,
+      "channels": {
+        "1": "Pan",
+        "2": "Pan Fine",
+        "3": "Tilt",
+        "4": "Tilt Fine",
+        "5": "Speed",
+        "6": "Dimmer",
+        "7": "Shutter",
+        "8": "Color Wheel",
+        "9": "Gobo",
+        "10": "Gobo Rotation",
+        "11": "Prism",
+        "12": "Focus",
+        "13": "Frost",
+        "14": "Iris",
+        "15": "Zoom",
+        "16": "Control"
+      },
+      "position": {
+        "x": 0.0,
+        "y": 4.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "group1",
+      "name": "Stage Wash",
+      "fixture_ids": ["wash1", "wash2"],
+      "color": "#00a8ff"
+    },
+    {
+      "id": "group2",
+      "name": "Moving Lights",
+      "fixture_ids": ["spot1"],
+      "color": "#00ff88"
+    }
+  ],
+  "palettes": {
+    "color": [
+      {
+        "id": "col1",
+        "name": "Red",
+        "values": {
+          "Red": 255,
+          "Green": 0,
+          "Blue": 0,
+          "White": 0
+        }
+      },
+      {
+        "id": "col2",
+        "name": "Green",
+        "values": {
+          "Red": 0,
+          "Green": 255,
+          "Blue": 0,
+          "White": 0
+        }
+      },
+      {
+        "id": "col3",
+        "name": "Blue",
+        "values": {
+          "Red": 0,
+          "Green": 0,
+          "Blue": 255,
+          "White": 0
+        }
+      },
+      {
+        "id": "col4",
+        "name": "White",
+        "values": {
+          "Red": 255,
+          "Green": 255,
+          "Blue": 255,
+          "White": 255
+        }
+      },
+      {
+        "id": "col5",
+        "name": "Warm White",
+        "values": {
+          "Red": 255,
+          "Green": 200,
+          "Blue": 100,
+          "White": 200
+        }
+      },
+      {
+        "id": "col6",
+        "name": "Cool White",
+        "values": {
+          "Red": 200,
+          "Green": 220,
+          "Blue": 255,
+          "White": 255
+        }
+      }
+    ],
+    "position": [
+      {
+        "id": "pos1",
+        "name": "Center",
+        "values": {
+          "Pan": 128,
+          "Tilt": 128
+        }
+      },
+      {
+        "id": "pos2",
+        "name": "Stage Left",
+        "values": {
+          "Pan": 64,
+          "Tilt": 128
+        }
+      },
+      {
+        "id": "pos3",
+        "name": "Stage Right",
+        "values": {
+          "Pan": 192,
+          "Tilt": 128
+        }
+      },
+      {
+        "id": "pos4",
+        "name": "Audience",
+        "values": {
+          "Pan": 128,
+          "Tilt": 180
+        }
+      }
+    ],
+    "beam": [
+      {
+        "id": "beam1",
+        "name": "Open",
+        "values": {
+          "Iris": 255,
+          "Frost": 0,
+          "Zoom": 128
+        }
+      },
+      {
+        "id": "beam2",
+        "name": "Tight Beam",
+        "values": {
+          "Iris": 100,
+          "Frost": 0,
+          "Zoom": 50
+        }
+      },
+      {
+        "id": "beam3",
+        "name": "Wide Wash",
+        "values": {
+          "Iris": 255,
+          "Frost": 255,
+          "Zoom": 200
+        }
+      }
+    ]
+  },
+  "cues": [
+    {
+      "id": "cue1",
+      "name": "House Lights",
+      "executor": 1,
+      "fade_time": 3.0,
+      "values": {
+        "wash1": {
+          "Dimmer": 180,
+          "Red": 255,
+          "Green": 220,
+          "Blue": 180,
+          "White": 200
+        },
+        "wash2": {
+          "Dimmer": 180,
+          "Red": 255,
+          "Green": 220,
+          "Blue": 180,
+          "White": 200
+        }
+      }
+    },
+    {
+      "id": "cue2",
+      "name": "Stage Blue",
+      "executor": 2,
+      "fade_time": 2.0,
+      "values": {
+        "wash1": {
+          "Dimmer": 255,
+          "Red": 0,
+          "Green": 50,
+          "Blue": 255,
+          "White": 0
+        },
+        "wash2": {
+          "Dimmer": 255,
+          "Red": 0,
+          "Green": 50,
+          "Blue": 255,
+          "White": 0
+        }
+      }
+    },
+    {
+      "id": "cue3",
+      "name": "Red Alert",
+      "executor": 3,
+      "fade_time": 0.5,
+      "values": {
+        "wash1": {
+          "Dimmer": 255,
+          "Red": 255,
+          "Green": 0,
+          "Blue": 0,
+          "White": 0,
+          "Strobe": 150
+        },
+        "wash2": {
+          "Dimmer": 255,
+          "Red": 255,
+          "Green": 0,
+          "Blue": 0,
+          "White": 0,
+          "Strobe": 150
+        }
+      }
+    },
+    {
+      "id": "cue4",
+      "name": "Spotlight Center",
+      "executor": 4,
+      "fade_time": 2.0,
+      "values": {
+        "spot1": {
+          "Pan": 128,
+          "Tilt": 128,
+          "Dimmer": 255,
+          "Color Wheel": 0,
+          "Gobo": 0,
+          "Focus": 128,
+          "Iris": 180,
+          "Zoom": 100
+        }
+      }
+    }
+  ],
+  "effects": [
+    {
+      "id": "effect1",
+      "name": "Color Chase",
+      "type": "chase",
+      "speed": 1.0,
+      "fixtures": ["wash1", "wash2"],
+      "steps": [
+        {"Red": 255, "Green": 0, "Blue": 0},
+        {"Red": 0, "Green": 255, "Blue": 0},
+        {"Red": 0, "Green": 0, "Blue": 255}
+      ]
+    }
+  ],
+  "preferences": {
+    "default_fade_time": 2.0,
+    "auto_save": true,
+    "auto_save_interval": 300,
+    "enable_gamepad": true,
+    "gamepad_deadzone": 0.1,
+    "touchscreen_mode": "absolute"
+  }
+}

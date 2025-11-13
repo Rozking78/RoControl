@@ -1,0 +1,51 @@
+/* Additional component-specific styles */
+
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Touch-friendly sizing for Steam Deck */
+@media (max-width: 1280px) {
+  .fixture-item {
+    padding: 15px 10px;
+  }
+
+  .encoder-wheel {
+    width: 70px;
+    height: 70px;
+  }
+
+  .palette-button {
+    padding: 10px;
+  }
+
+  .top-bar-button {
+    padding: 10px 18px;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.action-button:active {
+  animation: pulse 0.3s;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 24px;
+  color: var(--ma-blue);
+}

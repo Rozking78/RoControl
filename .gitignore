@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+src-tauri/target/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Tauri
+src-tauri/Cargo.lock
+
+# User data
+*.gdtf
+shows/*.json
+!demo-show.json
+
+# Temporary files
+*.tmp
+.cache/
