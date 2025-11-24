@@ -23,6 +23,12 @@ import PixelGridWindow from './views/PixelGridWindow'
 import ProtocolSettings from './views/ProtocolSettings'
 import VideoFixturePatch from './views/VideoFixturePatch'
 import VideoOutputGrid from './views/VideoOutputGrid'
+import ClocksConfigWindow from './ClocksConfigWindow'
+import ProgramTimeControl from './ProgramTimeControl'
+import CueExecutorTimeControl from './CueExecutorTimeControl'
+import GroupHandleEditor from './GroupHandleEditor'
+import CueGrid from './views/CueGrid'
+import GroupGrid from './views/GroupGrid'
 
 const VIEW_COMPONENTS = {
   fixtures: FixturesView,
@@ -33,6 +39,8 @@ const VIEW_COMPONENTS = {
   quickActions: QuickActionsView,
   channelGrid: ChannelGridView,
   cues: CuesView,
+  cueGrid: CueGrid,
+  groupGrid: GroupGrid,
   colorWindow: ColorWindow,
   intensityWindow: IntensityWindow,
   positionWindow: PositionWindow,
@@ -46,6 +54,10 @@ const VIEW_COMPONENTS = {
   protocolSettings: ProtocolSettings,
   videoFixturePatch: VideoFixturePatch,
   videoOutputGrid: VideoOutputGrid,
+  clocksConfig: ClocksConfigWindow,
+  programTimeControl: ProgramTimeControl,
+  cueExecutorTimeControl: CueExecutorTimeControl,
+  groupHandleEditor: GroupHandleEditor,
   empty: () => <div className="empty-view">Empty</div>
 }
 
@@ -58,6 +70,8 @@ const VIEW_LABELS = {
   quickActions: 'Quick Actions',
   channelGrid: 'Channel Grid',
   cues: 'Cues',
+  cueGrid: 'Cue Grid',
+  groupGrid: 'Group Grid',
   colorWindow: 'Color Window',
   intensityWindow: 'Intensity',
   positionWindow: 'Position',
@@ -71,6 +85,10 @@ const VIEW_LABELS = {
   protocolSettings: 'Protocol Settings',
   videoFixturePatch: 'Video Patch',
   videoOutputGrid: 'Video Outputs',
+  clocksConfig: 'Clocks Configuration',
+  programTimeControl: 'Program Time',
+  cueExecutorTimeControl: 'Cue/Executor Time',
+  groupHandleEditor: 'Group Handles',
   empty: 'Empty'
 }
 
