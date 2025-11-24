@@ -20,8 +20,14 @@ The following are kept local (via .gitignore) and won't be synced:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/rocontrol.git
-   cd rocontrol
+   git clone git@github.com:Rozking78/RoControl.git
+   cd RoControl
+   ```
+
+   Or via HTTPS:
+   ```bash
+   git clone https://github.com/Rozking78/RoControl.git
+   cd RoControl
    ```
 
 2. **Open with Claude Code:**
