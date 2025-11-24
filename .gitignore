@@ -32,3 +32,4 @@ shows/*.json
 # Claude Code - Keep project settings, ignore personal data
 /.claude/*
 !/.claude/settings.local.json
+!/.claude/README.md
