@@ -33,3 +33,4 @@ shows/*.json
 /.claude/*
 !/.claude/settings.local.json
 !/.claude/README.md
+!/.claude/PROJECT_INFO.md
