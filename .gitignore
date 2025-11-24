@@ -28,3 +28,7 @@ shows/*.json
 # Temporary files
 *.tmp
 .cache/
+
+# Claude Code - Keep project settings, ignore personal data
+/.claude/*
+!/.claude/settings.local.json

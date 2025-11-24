@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm run tauri:build:*)",
+      "Bash(command -v gcc:*)",
+      "Bash(gcc --version:*)",
+      "Bash(command -v cc:*)",
+      "Bash(cc:*)",
+      "Bash(chmod:*)",
+      "Bash(pacman -Si:*)",
+      "Bash(command -v:*)",
+      "Bash(npm run tauri:dev:*)",
+      "Bash(npm run dev:*)",
+      "Bash(xdg-open:*)",
+      "Bash(firefox:*)",
+      "Bash(chromium:*)",
+      "Bash(sudo dpkg:*)",
+      "Bash(update-desktop-database:*)",
+      "Bash(~/Applications/rocontrol)",
+      "Bash(tee:*)",
+      "Bash(./launch-rocontrol.sh --version)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
