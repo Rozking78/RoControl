@@ -1,0 +1,218 @@
+/* Clocks Configuration Window Styles */
+
+.clocks-config-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.clocks-config-window {
+  background: #1a1a1a;
+  border: 2px solid #2196f3;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.clocks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #2196f3;
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.clocks-header h2 {
+  margin: 0;
+  color: #2196f3;
+  font-size: 22px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 12px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #f44336;
+  transform: scale(1.1);
+}
+
+.clocks-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.clocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.clock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.clock-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.clock-info {
+  flex: 1;
+}
+
+.clock-name {
+  font-weight: bold;
+  color: #2196f3;
+  margin-bottom: 4px;
+}
+
+.clock-value {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+}
+
+.clock-type {
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.clock-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.clock-btn {
+  padding: 8px 16px;
+  background: rgba(33, 150, 243, 0.2);
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  color: #2196f3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.clock-btn:hover {
+  background: rgba(33, 150, 243, 0.3);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.clock-btn.danger {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.clock-btn.danger:hover {
+  background: rgba(244, 67, 54, 0.3);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.add-clock-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.add-clock-section h3 {
+  color: #2196f3;
+  margin-bottom: 16px;
+}
+
+.clock-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.clock-type-btn {
+  padding: 16px;
+  background: rgba(33, 150, 243, 0.1);
+  border: 2px solid rgba(33, 150, 243, 0.3);
+  border-radius: 8px;
+  color: #2196f3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: bold;
+}
+
+.clock-type-btn:hover {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: #2196f3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.clocks-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.export-btn, .import-btn {
+  padding: 10px 20px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+  border-radius: 6px;
+  color: #4caf50;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover, .import-btn:hover {
+  background: rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .clocks-config-window {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .clock-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .clock-controls {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

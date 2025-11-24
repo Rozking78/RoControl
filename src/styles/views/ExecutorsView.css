@@ -1,0 +1,237 @@
+.executors-view {
+  height: 100%;
+  overflow: auto;
+}
+
+.executors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  gap: 0px;
+  padding: 0px;
+  justify-content: start;
+}
+
+.executor-slot {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  position: relative;
+}
+
+.executor-slot:hover {
+  border-color: #4a9eff;
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.2);
+}
+
+.executor-slot.empty {
+  background: #1a1a1a;
+  border: 1px dashed #333;
+}
+
+.executor-slot.empty:hover {
+  border-color: #666;
+}
+
+.executor-slot.has-data {
+  border-color: #4caf50;
+  background: #2a3a2a;
+}
+
+.executor-slot.empty.record-target {
+  border-color: #ff4444;
+  animation: record-pulse-executor 1s infinite;
+}
+
+.executor-slot.has-data.record-target {
+  border-color: #ff8844;
+}
+
+.executor-number {
+  font-size: 8px;
+  font-weight: bold;
+  color: #888;
+}
+
+.executor-go-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.executor-empty-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.executor-slot-number {
+  font-size: 10px;
+  color: #555;
+  font-weight: 600;
+}
+
+.executor-delete-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #ff4444;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.executor-delete-btn:hover {
+  background: #ff6666;
+  transform: scale(1.2);
+}
+
+@keyframes record-pulse-executor {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+  }
+}
+
+/* Old styles below can be kept for backwards compatibility if needed */
+.executor-faders {
+  display: flex;
+  gap: 12px;
+  height: 100%;
+  align-items: stretch;
+}
+
+.fader {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.fader-track {
+  flex: 1;
+  width: 40px;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  min-height: 100px;
+}
+
+.fader-track:hover {
+  border-color: #4a9eff;
+}
+
+.fader-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, #4a9eff, #2a7edf);
+  border: 2px solid #333;
+  border-radius: 3px;
+  transform: translateY(50%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.fader-label {
+  font-size: 10px;
+  color: #888;
+  text-align: center;
+  line-height: 1.3;
+  position: relative;
+}
+
+/* Executor GO Button */
+.executor-go-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.executor-go-btn:not(.has-data) {
+  background: #2a2a2a;
+  border: 2px dashed #444;
+  color: #666;
+}
+
+.executor-go-btn.has-data {
+  background: #4caf50;
+  border: 2px solid #66bb6a;
+  color: white;
+}
+
+.executor-go-btn.has-data:hover {
+  background: #66bb6a;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+  transform: scale(1.05);
+}
+
+.executor-go-btn.record-target {
+  animation: exec-record-pulse 1s infinite;
+  border-color: #ff4444 !important;
+  color: #ff4444;
+}
+
+.executor-go-btn.record-target.has-data {
+  border-color: #ff8844 !important;
+}
+
+@keyframes exec-record-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+  }
+}
+
+.executor-clear-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  background: #ff4444;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.executor-clear-btn:hover {
+  background: #ff6666;
+  transform: scale(1.2);
+}

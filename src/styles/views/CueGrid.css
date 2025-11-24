@@ -1,0 +1,351 @@
+/* Cue Grid Window Styling */
+
+.cue-grid-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0f0f0f;
+  color: #fff;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.cue-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4a9eff;
+}
+
+.cue-grid-header h3 {
+  margin: 0;
+  color: #4a9eff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cue-grid-info {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Grid Layout */
+.cue-grid {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+  align-content: start;
+}
+
+/* Cue Square */
+.cue-square {
+  aspect-ratio: 1;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  position: relative;
+  min-height: 70px;
+  padding: 8px;
+}
+
+.cue-square:hover {
+  border-color: #4a9eff;
+  background: #252525;
+}
+
+.cue-square.filled {
+  background: linear-gradient(135deg, #1a2a3a, #1a1a1a);
+  border-color: #4a9eff;
+}
+
+.cue-square.filled:hover {
+  background: linear-gradient(135deg, #2a3a4a, #252525);
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.3);
+}
+
+.cue-square.selected {
+  border-color: #00ff88;
+  background: linear-gradient(135deg, #1a3a2a, #1a1a1a);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+.cue-square.recording {
+  animation: recordPulse 0.5s ease;
+  border-color: #ff4444;
+}
+
+@keyframes recordPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.95); box-shadow: 0 0 30px rgba(255, 68, 68, 0.6); }
+}
+
+.cue-square.empty {
+  border-style: dashed;
+  border-color: #444;
+}
+
+.cue-square.empty:hover {
+  border-style: solid;
+}
+
+/* Cue Content */
+.cue-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.cue-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a9eff;
+  margin-bottom: 4px;
+}
+
+.cue-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.cue-info {
+  font-size: 10px;
+  color: #888;
+}
+
+/* Empty Square Hint */
+.cue-empty-hint {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.cue-empty-hint .cue-number {
+  color: #666;
+  font-size: 16px;
+}
+
+.cue-hint {
+  font-size: 9px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Configuration Panel */
+.cue-config-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 320px;
+  height: 100%;
+  background: #0f0f0f;
+  border-left: 2px solid #4a9eff;
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 2px solid #4a9eff;
+  background: #1a1a1a;
+}
+
+.config-header h4 {
+  margin: 0;
+  color: #4a9eff;
+  font-size: 16px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #333;
+  color: #fff;
+}
+
+.config-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.config-field {
+  margin-bottom: 20px;
+}
+
+.config-field label {
+  display: block;
+  color: #888;
+  font-size: 12px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-field input {
+  width: 100%;
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.config-field input:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+.config-value {
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.config-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.config-actions button {
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-recall {
+  background: #4a9eff;
+  color: #fff;
+}
+
+.btn-recall:hover {
+  background: #5aaeff;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.4);
+}
+
+.btn-update {
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-update:hover {
+  background: #10ff98;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.btn-delete {
+  background: #ff4444;
+  color: #fff;
+}
+
+.btn-delete:hover {
+  background: #ff5555;
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+}
+
+/* Footer */
+.cue-grid-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+}
+
+/* Scrollbar Styling */
+.cue-grid::-webkit-scrollbar,
+.config-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cue-grid::-webkit-scrollbar-track,
+.config-body::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.cue-grid::-webkit-scrollbar-thumb,
+.config-body::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.cue-grid::-webkit-scrollbar-thumb:hover,
+.config-body::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cue-config-panel {
+    width: 100%;
+  }
+
+  .cue-square {
+    min-height: 60px;
+    padding: 6px;
+  }
+
+  .cue-number {
+    font-size: 16px;
+  }
+
+  .cue-name {
+    font-size: 11px;
+  }
+}

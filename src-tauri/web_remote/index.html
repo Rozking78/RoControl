@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoControl Web Remote</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .status.online {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .status.offline {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            color: #4ecdc4;
+            font-size: 1.5rem;
+        }
+
+        .cli-interface {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #eee;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .history {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item.command {
+            color: #4ecdc4;
+        }
+
+        .history-item.response {
+            color: #95e1d3;
+            padding-left: 20px;
+        }
+
+        .history-item.error {
+            color: #ff6b6b;
+            padding-left: 20px;
+        }
+
+        .quick-commands {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            border-radius: 5px;
+            color: #4ecdc4;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(78, 205, 196, 0.3);
+            border-color: #4ecdc4;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .video-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(78, 205, 196, 0.5);
+        }
+
+        .video-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #4ecdc4;
+        }
+
+        .video-size {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .file-upload {
+            margin-top: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .upload-label:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-progress {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4 0%, #44a08d 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .ws-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .ws-indicator.connected {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .ws-indicator.connecting {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RoControl Web Remote</h1>
+            <div class="status online" id="status">Online</div>
+        </header>
+
+        <div class="section">
+            <h2>CLI Command Interface</h2>
+
+            <div class="quick-commands">
+                <button class="quick-btn" onclick="sendQuickCommand('blackout')">Blackout</button>
+                <button class="quick-btn" onclick="sendQuickCommand('clear')">Clear</button>
+                <button class="quick-btn" onclick="sendQuickCommand('fixture 1 thru 10')">Fixture 1-10</button>
+                <button class="quick-btn" onclick="sendQuickCommand('at 255')">Full</button>
+                <button class="quick-btn" onclick="sendQuickCommand('at 0')">Zero</button>
+                <button class="quick-btn" onclick="sendQuickCommand('highlight')">Highlight</button>
+                <button class="quick-btn" onclick="sendQuickCommand('color')">Color</button>
+                <button class="quick-btn" onclick="sendQuickCommand('position')">Position</button>
+            </div>
+
+            <div class="cli-interface">
+                <input type="text" id="commandInput" placeholder="Enter CLI command..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendCommand()">Send</button>
+            </div>
+
+            <div class="history" id="commandHistory"></div>
+        </div>
+
+        <div class="section">
+            <h2>Video File Management</h2>
+
+            <div class="video-grid" id="videoGrid">
+                <p style="grid-column: 1 / -1; text-align: center; color: #aaa;">Loading videos...</p>
+            </div>
+
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept="video/*" onchange="uploadVideo()">
+                <label for="fileInput" class="upload-label">Choose Video File</label>
+                <div class="upload-progress" id="uploadProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ws-indicator connecting" id="wsIndicator" title="WebSocket Status"></div>
+
+    <script>
+        let ws = null;
+        let reconnectInterval = null;
+
+        function connectWebSocket() {
+            const wsIndicator = document.getElementById('wsIndicator');
+            wsIndicator.className = 'ws-indicator connecting';
+
+            ws = new WebSocket(`ws://${window.location.hostname}:8080/ws`);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                wsIndicator.className = 'ws-indicator connected';
+                clearInterval(reconnectInterval);
+            };
+
+            ws.onmessage = (event) => {
+                addToHistory(event.data, 'response');
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                wsIndicator.className = 'ws-indicator';
+                reconnectInterval = setInterval(connectWebSocket, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                wsIndicator.className = 'ws-indicator';
+            };
+        }
+
+        async function sendCommand() {
+            const input = document.getElementById('commandInput');
+            const command = input.value.trim();
+
+            if (!command) return;
+
+            addToHistory(`> ${command}`, 'command');
+            input.value = '';
+
+            try {
+                const response = await fetch(`http://${window.location.hostname}:8080/api/command`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addToHistory(data.message, 'response');
+                } else {
+                    addToHistory(data.message, 'error');
+                }
+            } catch (error) {
+                addToHistory(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function sendQuickCommand(command) {
+            document.getElementById('commandInput').value = command;
+            sendCommand();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendCommand();
+            }
+        }
+
+        function addToHistory(text, type) {
+            const history = document.getElementById('commandHistory');
+            const item = document.createElement('div');
+            item.className = `history-item ${type}`;
+            item.textContent = text;
+            history.appendChild(item);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        async function loadVideos() {
+            try {
+                const response = await fetch(`http://${window.location.hostname}:8080/api/videos`);
+                const videos = await response.json();
+
+                const grid = document.getElementById('videoGrid');
+
+                if (videos.length === 0) {
+                    grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #aaa;">No videos uploaded yet</p>';
+                    return;
+                }
+
+                grid.innerHTML = videos.map(video => `
+                    <div class="video-card">
+                        <div class="video-name">${video.name}</div>
+                        <div class="video-size">${formatFileSize(video.size)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                document.getElementById('videoGrid').innerHTML =
+                    '<p style="grid-column: 1 / -1; text-align: center; color: #ff6b6b;">Error loading videos</p>';
+            }
+        }
+
+        async function uploadVideo() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) return;
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+
+            progressDiv.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressFill.textContent = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressFill.style.width = `${percentComplete}%`;
+                        progressFill.textContent = `${percentComplete}%`;
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        addToHistory(`Uploaded: ${file.name}`, 'response');
+                        setTimeout(() => {
+                            progressDiv.style.display = 'none';
+                            fileInput.value = '';
+                            loadVideos();
+                        }, 1000);
+                    } else {
+                        addToHistory('Upload failed', 'error');
+                        progressDiv.style.display = 'none';
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    addToHistory('Upload error', 'error');
+                    progressDiv.style.display = 'none';
+                });
+
+                xhr.open('POST', `http://${window.location.hostname}:8080/api/video/upload`);
+                xhr.send(formData);
+
+            } catch (error) {
+                addToHistory(`Upload error: ${error.message}`, 'error');
+                progressDiv.style.display = 'none';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Initialize
+        connectWebSocket();
+        loadVideos();
+
+        // Auto-refresh videos every 10 seconds
+        setInterval(loadVideos, 10000);
+
+        // Focus command input on load
+        document.getElementById('commandInput').focus();
+    </script>
+</body>
+</html>

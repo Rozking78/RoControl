@@ -1,0 +1,75 @@
+═══════════════════════════════════════════════════════════
+ STEAM DECK BUILD TOOLS - INSTALLATION COMMANDS
+═══════════════════════════════════════════════════════════
+
+Choose ONE of these methods:
+
+═══════════════════════════════════════════════════════════
+METHOD 1: Run the Simple Script (Recommended)
+═══════════════════════════════════════════════════════════
+
+./install-simple.sh
+
+═══════════════════════════════════════════════════════════
+METHOD 2: Manual Commands (If script fails)
+═══════════════════════════════════════════════════════════
+
+Run these commands one at a time:
+
+1. Make filesystem writable:
+   sudo steamos-readonly disable
+
+2. Install GCC (ignore signature warnings):
+   sudo pacman -Syu --overwrite '*' gcc make
+
+   When asked about signatures, press Y and Enter for each
+
+3. Verify installation:
+   gcc --version
+
+4. Create symlink if needed:
+   sudo ln -sf /usr/bin/gcc /usr/bin/cc
+
+5. Test the build:
+   npm run tauri dev
+
+═══════════════════════════════════════════════════════════
+METHOD 3: Use pacman.conf Override (Most Reliable)
+═══════════════════════════════════════════════════════════
+
+1. Disable read-only:
+   sudo steamos-readonly disable
+
+2. Install with custom config:
+   sudo bash -c 'echo "SigLevel = Never" >> /etc/pacman.conf.tmp && cat /etc/pacman.conf >> /etc/pacman.conf.tmp && pacman -Syu --config /etc/pacman.conf.tmp --needed gcc make && rm /etc/pacman.conf.tmp'
+
+3. Verify:
+   gcc --version
+
+═══════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════
+
+If you see "unknown trust" errors:
+  → Press Y to all prompts and continue
+  → Packages will install despite warnings
+
+If you see "permission denied":
+  → Make sure you're using sudo
+  → Try: sudo steamos-readonly disable
+
+If pacman says "database locked":
+  → Close any other pacman/package manager windows
+  → Run: sudo rm /var/lib/pacman/db.lck
+
+═══════════════════════════════════════════════════════════
+AFTER SUCCESSFUL INSTALLATION
+═══════════════════════════════════════════════════════════
+
+Test the app:
+  npm run tauri dev
+
+Build for production:
+  npm run tauri build
+
+═══════════════════════════════════════════════════════════

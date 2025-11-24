@@ -1,0 +1,28 @@
+[package]
+name = "steamdeck-dmx-controller"
+version = "0.1.0"
+description = "Professional DMX Lighting Controller for Steam Deck"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = ["dialog-all", "fs-all", "protocol-asset"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+artnet_protocol = "0.4"
+sacn = "0.10"
+zip = "0.6"
+xml-rs = "0.8"
+thiserror = "1.0"
+gilrs = "0.10"  # Gamepad input for Steam Deck controls
+if-addrs = "0.10"  # Network interface enumeration
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

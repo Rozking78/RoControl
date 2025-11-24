@@ -1,0 +1,188 @@
+╔════════════════════════════════════════════════════════════════╗
+║     STEAM DECK DMX CONTROLLER - INSTALLATION CHECKLIST        ║
+╚════════════════════════════════════════════════════════════════╝
+
+PREPARATION
+───────────
+☐ Read INSTALL_README.md (5 minutes)
+☐ Ensure you have recent git commit (optional)
+☐ Make sure npm and Tauri are installed
+
+STEP 1: RUN INSTALLER
+──────────────────────
+☐ cd /home/deck/Downloads/steamdeck-dmx-controller
+☐ ./install-frontend-features.sh
+☐ Choose Option 2 (Manual installation)
+☐ Save instructions to INTEGRATION_STEPS.md
+
+STEP 2: VERIFY COMPONENTS
+──────────────────────────
+The installer checks these automatically:
+☐ src/utils/virtualIntensity.js
+☐ src/utils/artnet.js
+☐ src/utils/sacn.js
+☐ src/utils/dmxOutputManager.js
+☐ src/utils/autoKeyboard.js
+☐ src/components/GamepadManager.jsx
+☐ src/components/views/ProtocolSettings.jsx
+☐ All attribute windows (Color, Intensity, Position, etc.)
+
+STEP 3: EDIT APP.JSX
+────────────────────
+Open src/App.jsx and add:
+
+☐ 1. Add imports (line ~7):
+    import GamepadManager from './components/GamepadManager'
+    import { initializeAutoKeyboard } from './utils/autoKeyboard'
+    import { getDMXOutputManager } from './utils/dmxOutputManager'
+
+☐ 2. Add state variables (line ~60):
+    const [activeFeatureSet, setActiveFeatureSet] = useState('all')
+    const [activeParameters, setActiveParameters] = useState(new Set())
+    const [recordMode, setRecordMode] = useState(false)
+    const [showKeyboard, setShowKeyboard] = useState(false)
+    const [keyboardMode, setKeyboardMode] = useState('keyboard')
+    const [keyboardTarget, setKeyboardTarget] = useState(null)
+
+☐ 3. Add auto-keyboard init (line ~160):
+    useEffect(() => {
+      const autoKeyboard = initializeAutoKeyboard((show, mode, inputElement) => {
+        if (show) {
+          setKeyboardMode(mode)
+          setShowKeyboard(true)
+          setKeyboardTarget(inputElement)
+        }
+      })
+      return () => autoKeyboard.destroy()
+    }, [])
+
+☐ 4. Update appState object (line ~873):
+    Add these properties:
+    activeFeatureSet,
+    setActiveFeatureSet,
+    activeParameters,
+    setActiveParameters,
+    recordMode,
+    toggleRecordMode: () => setRecordMode(!recordMode),
+    handleClearProgrammer: handleClear,
+
+☐ 5. Wrap with GamepadManager (line ~895):
+    return (
+      <GamepadManager appState={appState}>
+        <div className="app-container">
+          {/* existing content */}
+
+          {showKeyboard && (
+            <OnScreenKeyboard
+              mode={keyboardMode}
+              target={keyboardTarget}
+              onClose={() => setShowKeyboard(false)}
+            />
+          )}
+        </div>
+      </GamepadManager>
+    )
+
+STEP 4: BUILD AND TEST
+──────────────────────
+☐ npm run build
+☐ Check for build errors (should be none)
+☐ npm run tauri dev
+☐ App launches successfully
+
+STEP 5: VERIFY FEATURES
+───────────────────────
+☐ Gamepad connection indicator shows (bottom left)
+☐ D-Pad navigation works (elements highlight in blue)
+☐ Click on any input field - keyboard appears automatically
+☐ Right-click grid cell - new views appear in menu:
+   ☐ ColorWindow
+   ☐ IntensityWindow
+   ☐ PositionWindow
+   ☐ FocusWindow
+   ☐ GoboWindow
+   ☐ GroupsWindow
+   ☐ FlexWindow
+   ☐ Programmer Pro
+   ☐ Attributes
+   ☐ View Recall
+   ☐ Pixel Grid
+   ☐ Protocols
+
+STEP 6: TEST GAMEPAD CONTROLS
+──────────────────────────────
+☐ A Button - Activates focused element
+☐ B Button - Back/Cancel
+☐ X Button - Clear programmer
+☐ Y Button - Locate fixtures
+☐ Left Bumper - Blackout toggle
+☐ Right Bumper - Record mode toggle
+☐ D-Pad Up/Down - Navigate vertically
+☐ D-Pad Left/Right - Navigate horizontally
+
+STEP 7: PRODUCTION BUILD
+────────────────────────
+☐ npm run tauri build
+☐ Check dist/ folder for output
+☐ Test production build
+
+STEP 8: DEPLOY TO STEAM DECK
+─────────────────────────────
+☐ Copy build to Steam Deck
+☐ Add to Steam as non-Steam game
+☐ Test on actual hardware
+☐ Configure Steam Input (optional)
+
+TROUBLESHOOTING
+───────────────
+If issues occur, check:
+
+☐ Backups exist in: backups/YYYYMMDD_HHMMSS/
+☐ All imports use correct paths (relative to App.jsx)
+☐ GamepadManager wraps entire app content
+☐ appState includes all required properties
+☐ Browser console for error messages
+
+DOCUMENTATION REFERENCE
+───────────────────────
+☐ INSTALL_README.md - Main installation guide
+☐ INTEGRATION_STEPS.md - Detailed steps
+☐ BACKEND_INTEGRATION_GUIDE.md - Complete examples
+☐ INSTALLATION_PACKAGE_SUMMARY.md - Package overview
+☐ TAURI_BACKEND_REQUIREMENTS.md - Backend details (FYI)
+
+SUPPORT FILES
+─────────────
+☐ GAP_ANALYSIS.md - Original feature analysis
+☐ FLEXWINDOW_INTEGRATION_GUIDE.md - FlexWindow usage
+☐ QUICK_START_GUIDE.md - End user documentation
+
+ESTIMATED TIME
+──────────────
+Installation: 5-10 minutes
+Testing: 15-30 minutes
+Total: 20-40 minutes
+
+BACKUP REMINDER
+───────────────
+Backups created automatically in:
+└── backups/YYYYMMDD_HHMMSS/
+    ├── App.jsx.backup
+    ├── main.rs.backup
+    └── Cargo.toml.backup
+
+COMPLETION STATUS
+─────────────────
+Backend: ✓ Complete (already excellent!)
+Frontend: ✓ Complete (all components built)
+Integration: ☐ Pending (your task - 5-10 minutes)
+Testing: ☐ Pending (20-30 minutes)
+Deployment: ☐ Pending (Steam Deck)
+
+═══════════════════════════════════════════════════════════════
+
+READY TO START?
+
+Run: ./install-frontend-features.sh
+
+Good luck! 🚀

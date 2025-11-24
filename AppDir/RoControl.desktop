@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=RoControl
+Exec=ro-control
+Icon=rocontrol
+Type=Application
+Categories=Utility;AudioVideo;X-Lighting;
+Comment=Professional DMX Lighting Controller for Steam Deck
+Terminal=false
+StartupWMClass=RoControl

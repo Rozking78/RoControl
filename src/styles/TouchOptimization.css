@@ -1,0 +1,222 @@
+/**
+ * Steam Deck Touch Optimization
+ * Global touch-friendly CSS rules
+ */
+
+/* Tap highlight color - matches app blue theme */
+* {
+  -webkit-tap-highlight-color: rgba(74, 158, 255, 0.3);
+}
+
+/* Remove tap highlight for custom-styled buttons */
+button,
+.clickable-element,
+.interactive,
+.preset-slot,
+.fixture-item {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch action - prevent double-tap zoom on interactive elements */
+button,
+a,
+.clickable-element,
+.interactive,
+.preset-slot,
+.fixture-item,
+.grid-cell-close-btn,
+.keyboard-key {
+  touch-action: manipulation; /* Removes 300ms delay, prevents zoom */
+}
+
+/* Range sliders - prevent scroll while dragging */
+input[type="range"] {
+  touch-action: none;
+}
+
+/* Scrollable containers - only vertical scroll */
+.scrollable-container,
+.grid-cell-content,
+.modal-content,
+.setup-content {
+  touch-action: pan-y;
+}
+
+/* Minimum touch target sizes */
+button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Input fields touch optimization */
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+textarea {
+  min-height: 44px;
+  padding: 12px 16px;
+  touch-action: manipulation;
+}
+
+/* Number inputs specific sizing */
+input[type="number"] {
+  min-width: 80px;
+}
+
+/* Slider thumb sizing - ensure touch-friendly */
+input[type="range"]::-webkit-slider-thumb {
+  min-width: 44px;
+  min-height: 44px;
+  cursor: grab;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+input[type="range"]::-moz-range-thumb {
+  min-width: 44px;
+  min-height: 44px;
+  cursor: grab;
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  cursor: grabbing;
+}
+
+/* Enhanced active states for touch feedback */
+button:active,
+.clickable-element:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Ensure active state is visible (not just hover) */
+@media (hover: none) {
+  /* Touch devices - show all hidden buttons */
+  .preset-clear-btn,
+  .view-actions,
+  .delete-btn {
+    opacity: 1 !important;
+  }
+
+  /* Remove hover transforms on touch */
+  button:hover,
+  .clickable-element:hover {
+    transform: none;
+  }
+
+  /* Strengthen active states */
+  button:active,
+  .clickable-element:active {
+    transform: scale(0.92);
+    opacity: 0.8;
+  }
+}
+
+/* Steam Deck specific optimizations - 1280x800 resolution */
+@media (max-width: 1280px) and (max-height: 800px) {
+  /* Increase base font size for readability */
+  body {
+    font-size: 16px;
+  }
+
+  /* Ensure text is readable */
+  .fixture-name,
+  .encoder-label,
+  .tab-label {
+    font-size: 14px !important;
+    min-font-size: 14px;
+  }
+
+  /* Increase touch targets for better touch accuracy */
+  button {
+    min-height: 56px;
+    min-width: 56px;
+    font-size: 14px;
+  }
+
+  /* Make preset slots bigger for easier touch */
+  .color-slot,
+  .groups-slot,
+  .position-slot,
+  .focus-slot,
+  .gobo-slot,
+  .intensity-slot {
+    width: 72px !important;
+    height: 72px !important;
+  }
+
+  /* Update grid to match larger slots */
+  .color-grid,
+  .groups-grid,
+  .position-grid,
+  .focus-grid,
+  .gobo-grid,
+  .intensity-grid {
+    grid-template-columns: repeat(auto-fill, 72px) !important;
+  }
+
+  /* Increase preset slot numbers and text */
+  .color-number,
+  .groups-number,
+  .position-number,
+  .focus-number,
+  .gobo-number {
+    font-size: 12px !important;
+  }
+
+  .groups-count,
+  .color-slot-number,
+  .groups-slot-number,
+  .position-slot-number,
+  .focus-slot-number,
+  .gobo-slot-number {
+    font-size: 14px !important;
+  }
+
+  /* Make delete buttons bigger and easier to tap */
+  .color-delete-btn,
+  .groups-delete-btn,
+  .position-delete-btn,
+  .focus-delete-btn,
+  .gobo-delete-btn {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+    top: -6px !important;
+    right: -6px !important;
+  }
+
+  /* Increase window header size for better drag/drop */
+  .grid-cell-header {
+    min-height: 48px !important;
+    font-size: 14px !important;
+  }
+
+  /* Make resize handles bigger */
+  .resize-handle {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* Increase top bar button sizes */
+  .top-bar-button {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  /* Bigger scrollbars for touch */
+  ::-webkit-scrollbar {
+    width: 32px !important;
+  }
+
+  ::-webkit-scrollbar:horizontal {
+    height: 32px !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 80px !important;
+  }
+}

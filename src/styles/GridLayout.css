@@ -1,0 +1,306 @@
+.grid-layout {
+  background: #0a0a0a;
+  width: 100%;
+  height: calc(100% - 100px); /* Account for programmer bar height (100px) */
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-cell {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  min-height: 100px;
+}
+
+.grid-cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px; /* More padding for touch */
+  background: #252525;
+  border-bottom: 1px solid #333;
+  min-height: 32px; /* Taller for easier grabbing */
+  cursor: move;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background 0.2s;
+}
+
+.grid-cell-header:active {
+  background: #2a2a2a;
+}
+
+.grid-cell-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grid-cell-buttons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.grid-cell-close-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  transition: all 0.2s;
+  line-height: 1;
+  min-width: 24px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.grid-cell-close-btn:hover {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.grid-cell-close-btn:active {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.grid-cell-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.empty-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  font-style: italic;
+  position: relative;
+  /* Guide grid background */
+  background-image:
+    linear-gradient(to right, #2a2a2a 1px, transparent 1px),
+    linear-gradient(to bottom, #2a2a2a 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: center center;
+}
+
+.empty-view::before {
+  content: 'Right-click or long-press to add view';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px dashed #4a9eff;
+  font-size: 11px;
+  color: #4a9eff;
+  white-space: nowrap;
+}
+
+/* Scrollbar styling for grid cells */
+.grid-cell-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.grid-cell-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.grid-cell-content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.grid-cell-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Edit Mode */
+.grid-cell.edit-mode {
+  cursor: move;
+  outline: 2px dashed #4a9eff;
+  outline-offset: -2px;
+}
+
+.grid-cell.edit-mode:hover {
+  outline-color: #5eaeff;
+  outline-width: 3px;
+}
+
+.grid-cell.dragging {
+  opacity: 0.5;
+  outline-color: #ff9800;
+}
+
+/* Resize Handles - Touch-optimized */
+.resize-handle {
+  position: absolute;
+  background: #4a9eff;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.resize-handle:hover {
+  background: #5eaeff;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.6);
+}
+
+.resize-handle:active {
+  background: #6ebfff;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.8);
+}
+
+.resize-right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 16px; /* Wider for easier touch */
+  cursor: ew-resize;
+  opacity: 0.5;
+}
+
+.resize-right:hover,
+.resize-right:active {
+  opacity: 1;
+}
+
+.resize-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 16px; /* Taller for easier touch */
+  cursor: ns-resize;
+  opacity: 0.5;
+}
+
+.resize-bottom:hover,
+.resize-bottom:active {
+  opacity: 1;
+}
+
+.resize-corner {
+  right: 0;
+  bottom: 0;
+  width: 32px; /* Larger for easier touch */
+  height: 32px;
+  cursor: nwse-resize;
+  border-radius: 4px 0 4px 0;
+  opacity: 0.8;
+}
+
+.resize-corner:hover,
+.resize-corner:active {
+  opacity: 1;
+}
+
+/* Context Menu */
+.context-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 80px; /* Don't overlap master fader (80px width) */
+  bottom: 0;
+  z-index: 9999;
+}
+
+.context-menu {
+  background: #2a2a2a;
+  border: 2px solid #4a9eff;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  min-width: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.context-menu-header {
+  background: #333;
+  padding: 10px 15px;
+  color: #4a9eff;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #444;
+}
+
+.context-menu-item {
+  padding: 14px 18px; /* Larger touch targets */
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px; /* Slightly larger text */
+  transition: all 0.2s;
+  border-bottom: 1px solid #333;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.context-menu-item:last-child {
+  border-bottom: none;
+}
+
+.context-menu-item:hover,
+.context-menu-item:active {
+  background: #4a9eff;
+  color: #fff;
+  padding-left: 24px;
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  .context-menu-item {
+    padding: 16px 20px; /* Even larger for touch screens */
+    font-size: 15px;
+  }
+}
+
+/* Long-press visual feedback */
+@keyframes longPressPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+}
+
+.long-press-indicator {
+  z-index: 9998;
+}
+
+.freeform-canvas {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Responsive adjustments for Steam Deck */
+@media (max-width: 1280px) {
+  .grid-layout {
+    height: calc(100% - 90px); /* Steam Deck programmer bar is 90px */
+  }
+}

@@ -4,6 +4,13 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  padding-right: 100px; /* Reserve space for master fader */
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.app-container > * {
+  pointer-events: auto;
 }
 
 /* Touch-friendly sizing for Steam Deck */
@@ -48,4 +55,437 @@
   height: 100vh;
   font-size: 24px;
   color: var(--ma-blue);
+}
+
+/* Setup Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 100px; /* Don't overlap master fader */
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 2px solid #333;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+}
+
+.modal-close {
+  background: #333;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #444;
+}
+
+.modal-tabs {
+  display: flex;
+  border-bottom: 2px solid #333;
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 15px;
+  background: #222;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.modal-tab:hover {
+  background: #2a2a2a;
+  color: #aaa;
+}
+
+.modal-tab.active {
+  background: #1a1a1a;
+  color: #4a9eff;
+  border-bottom: 3px solid #4a9eff;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.setup-section {
+  color: #fff;
+}
+
+.setup-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #4a9eff;
+  font-size: 16px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  background: #222 !important;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff !important;
+  font-size: 14px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4a9eff;
+  background: #2a2a2a !important;
+}
+
+/* Fix select dropdown options */
+.form-group select option {
+  background: #222;
+  color: #fff;
+}
+
+/* Fix input autofill */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px #222 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 650px) {
+  .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.form-help {
+  background: #222;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.form-help p {
+  margin: 5px 0;
+}
+
+.form-help ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.form-help code {
+  background: #333;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #4a9eff;
+}
+
+.btn-primary {
+  background: #4a9eff;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #3a8eef;
+}
+
+.btn-primary:active {
+  background: #2a7edf;
+}
+
+.fixture-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.fixture-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  transition: background 0.2s;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.fixture-list-item:hover {
+  background: #222;
+}
+
+.fixture-list-item:last-child {
+  border-bottom: none;
+}
+
+.fixture-list-item small {
+  color: #888;
+  font-size: 11px;
+}
+
+.fixture-list-item div {
+  color: #fff;
+}
+
+.btn-delete {
+  background: #ff4444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.btn-delete:hover {
+  background: #ee3333;
+}
+
+.btn-delete:active {
+  background: #dd2222;
+}
+
+/* Checkbox and toggle switches */
+.form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #4a9eff;
+}
+
+.form-group input[type="number"] {
+  width: 100%;
+}
+
+/* Radio buttons */
+.form-group input[type="radio"] {
+  width: auto;
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: #4a9eff;
+}
+
+/* Ensure all text in modal is visible */
+.modal-content * {
+  color: inherit;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content button {
+  color: #fff;
+}
+
+/* Style for any remaining white backgrounds */
+.setup-section p,
+.setup-section div,
+.setup-section span {
+  color: #fff;
+}
+
+/* Gamepad debug display */
+.gamepad-debug {
+  background: #222;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  font-family: monospace;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.gamepad-debug pre {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #aaa;
+}
+
+/* Record Button Styles */
+.record-button {
+  position: relative;
+  font-weight: bold;
+}
+
+.record-button.recording {
+  background: linear-gradient(135deg, #ff4444, #cc0000) !important;
+  border-color: #ff6666 !important;
+  color: #fff !important;
+  animation: record-pulse 1.5s infinite;
+}
+
+.record-button.recording:hover {
+  background: linear-gradient(135deg, #ff6666, #ee2222) !important;
+}
+
+@keyframes record-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.9);
+  }
+}
+
+/* Global Record Mode Indicator */
+.app-container.record-mode::before {
+  content: attr(data-record-message);
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: #fff;
+  padding: 6px 24px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  z-index: 10000;
+  animation: record-flash 1s infinite;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.5);
+}
+
+@keyframes record-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Quick View Buttons */
+.quick-view-buttons {
+  display: flex;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.quick-view-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-view-btn.empty {
+  background: #1a1a1a;
+  border: 2px dashed #444;
+  color: #666;
+}
+
+.quick-view-btn.filled {
+  background: #2a3a4a;
+  border: 2px solid #4a9eff;
+  color: #4a9eff;
+}
+
+.quick-view-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.4);
+}
+
+.quick-view-btn.empty:hover {
+  border-color: #666;
+  color: #888;
+}
+
+.quick-view-btn.filled:hover {
+  background: #3a4a5a;
+  border-color: #6ab8ff;
+}
+
+.quick-view-btn.record-target {
+  animation: record-pulse-btn 1s infinite;
+}
+
+.quick-view-btn.record-target.empty {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.quick-view-btn.record-target.filled {
+  border-color: #ff8844;
+}
+
+@keyframes record-pulse-btn {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+  }
 }

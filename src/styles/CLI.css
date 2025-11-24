@@ -1,0 +1,140 @@
+/* CLI Component Styling - MA3/Hog Inspired */
+
+.cli-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%);
+  border-top: 2px solid #4a9eff;
+  padding: 8px 12px;
+  z-index: 9999;
+  box-shadow: 0 -4px 20px rgba(74, 158, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.cli-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cli-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.cli-prompt {
+  background: #4a9eff;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.cli-selection {
+  color: #00ff88;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cli-input {
+  flex: 1;
+  background: rgba(30, 30, 40, 0.8);
+  border: 2px solid #333;
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-family: 'Courier New', 'Consolas', monospace;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.cli-input:focus {
+  border-color: #4a9eff;
+  background: rgba(30, 30, 50, 0.95);
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.4);
+}
+
+.cli-input::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.cli-feedback {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 200px;
+  text-align: center;
+  animation: fadeInSlide 0.3s ease-out;
+}
+
+.cli-feedback.success {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+.cli-feedback.error {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+}
+
+.cli-feedback.info {
+  background: rgba(74, 158, 255, 0.2);
+  color: #4a9eff;
+  border: 1px solid #4a9eff;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Touch optimization for Steam Deck */
+@media (hover: none) and (pointer: coarse) {
+  .cli-input {
+    font-size: 18px;
+    padding: 14px 18px;
+    min-height: 50px;
+  }
+
+  .cli-prompt {
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+
+  .cli-selection {
+    font-size: 14px;
+  }
+}
+
+/* Adjust bottom spacing when CLI is present */
+body.cli-active .programmer-bar {
+  bottom: 60px;
+}
+
+body.cli-active .main-content {
+  padding-bottom: 120px;
+}

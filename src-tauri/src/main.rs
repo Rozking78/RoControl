@@ -1,11 +1,16 @@
 // Prevents additional console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod web_server;
+mod ndi_support;
+
 use artnet_protocol::*;
+use sacn::source::SacnSource;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::path::PathBuf;
 use tauri::State;
 use std::fs;
 use std::io::Read;
@@ -13,6 +18,13 @@ use zip::ZipArchive;
 
 // DMX Universe - 512 channels
 type DmxUniverse = [u8; 512];
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct NetworkInterface {
+    name: String,
+    ip: String,
+    is_loopback: bool,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Fixture {
@@ -23,6 +35,10 @@ struct Fixture {
     universe: u8,
     channel_count: u16,
     gdtf_file: Option<String>,
+    // Video fixture fields
+    is_video: Option<bool>,           // True if this is a video fixture
+    video_source_type: Option<String>, // "file" or "ndi"
+    video_source_path: Option<String>, // File path or NDI stream name
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,10 +57,19 @@ struct GdtfFixtureType {
     modes: Vec<String>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+enum DmxProtocol {
+    ArtNet,
+    Sacn,
+}
+
 struct DmxEngine {
     universes: HashMap<u8, DmxUniverse>,
-    socket: Option<UdpSocket>,
+    artnet_socket: Option<UdpSocket>,
+    sacn_source: Option<Arc<Mutex<SacnSource>>>,
     broadcast_address: String,
+    protocol: DmxProtocol,
+    selected_interface: Option<String>, // IP address of selected interface
 }
 
 struct AppState {
@@ -56,12 +81,43 @@ struct AppState {
 
 impl DmxEngine {
     fn new(broadcast_address: String) -> Self {
-        let socket = UdpSocket::bind("0.0.0.0:6454").ok();
+        let artnet_socket = UdpSocket::bind("0.0.0.0:6454").ok();
+
+        // Initialize sACN source (IPv4)
+        let sacn_source = SacnSource::new_v4("SteamDeck DMX Controller").ok().map(|src| Arc::new(Mutex::new(src)));
+
         DmxEngine {
             universes: HashMap::new(),
-            socket,
+            artnet_socket,
+            sacn_source,
             broadcast_address,
+            protocol: DmxProtocol::ArtNet,
+            selected_interface: None,
         }
+    }
+
+    fn set_network_interface(&mut self, interface_ip: Option<String>) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        self.selected_interface = interface_ip.clone();
+
+        // Rebind socket to specific interface
+        if let Some(ip) = interface_ip {
+            let bind_addr = format!("{}:6454", ip);
+            self.artnet_socket = UdpSocket::bind(&bind_addr).ok();
+
+            // Recreate sACN source with specific interface
+            // Note: sACN library might need specific configuration for interface binding
+            self.sacn_source = SacnSource::new_v4("SteamDeck DMX Controller").ok().map(|src| Arc::new(Mutex::new(src)));
+        } else {
+            // Bind to all interfaces
+            self.artnet_socket = UdpSocket::bind("0.0.0.0:6454").ok();
+            self.sacn_source = SacnSource::new_v4("SteamDeck DMX Controller").ok().map(|src| Arc::new(Mutex::new(src)));
+        }
+
+        Ok(())
+    }
+
+    fn set_protocol(&mut self, protocol: DmxProtocol) {
+        self.protocol = protocol;
     }
 
     fn set_channel(&mut self, universe: u8, channel: u16, value: u8) {
@@ -71,19 +127,40 @@ impl DmxEngine {
         }
     }
 
-    fn send_artnet(&self, universe: u8) -> Result<(), Box<dyn std::error::Error>> {
-        if let Some(socket) = &self.socket {
+    fn send_dmx(&self, universe: u8) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        match self.protocol {
+            DmxProtocol::ArtNet => self.send_artnet(universe),
+            DmxProtocol::Sacn => self.send_sacn(universe),
+        }
+    }
+
+    fn send_artnet(&self, universe: u8) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        if let Some(socket) = &self.artnet_socket {
             let dmx_data = self.universes.get(&universe).unwrap_or(&[0u8; 512]);
-            
+
             let command = ArtCommand::Output(Output {
-                length: 512,
-                data: dmx_data.into(),
+                data: dmx_data.to_vec().into(),
                 port_address: universe.into(),
                 ..Output::default()
             });
 
             let bytes = command.write_to_buffer()?;
             socket.send_to(&bytes, format!("{}:6454", self.broadcast_address))?;
+        }
+        Ok(())
+    }
+
+    fn send_sacn(&self, universe: u8) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        if let Some(sacn_src) = &self.sacn_source {
+            let dmx_data = self.universes.get(&universe).unwrap_or(&[0u8; 512]);
+            let mut src = sacn_src.lock().map_err(|e| format!("Lock error: {}", e))?;
+
+            // sACN universes are 1-based (1-63999)
+            let sacn_universe = (universe as u16) + 1;
+
+            // Send DMX data via sACN
+            // send(universes: &[u16], data: &[u8], priority: Option<u8>, dst_ip: Option<SocketAddr>, sync_addr: Option<u16>)
+            src.send(&[sacn_universe], dmx_data, None, None, None).map_err(|e| format!("sACN send error: {}", e))?;
         }
         Ok(())
     }
@@ -101,10 +178,10 @@ fn set_dmx_channel(
     universe: u8,
     channel: u16,
     value: u8,
-) -> Result<String, String> {
+) -> std::result::Result<String, String> {
     let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
     engine.set_channel(universe, channel, value);
-    engine.send_artnet(universe).map_err(|e| e.to_string())?;
+    engine.send_dmx(universe).map_err(|e| e.to_string())?;
     Ok(format!("Set U{} Ch{} to {}", universe, channel, value))
 }
 
@@ -114,7 +191,7 @@ fn set_fixture_channel(
     fixture_id: String,
     channel_offset: u16,
     value: u8,
-) -> Result<String, String> {
+) -> std::result::Result<String, String> {
     let fixtures = state.fixtures.lock().map_err(|e| e.to_string())?;
     let fixture = fixtures
         .get(&fixture_id)
@@ -123,7 +200,7 @@ fn set_fixture_channel(
     let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
     let absolute_channel = fixture.dmx_address + channel_offset;
     engine.set_channel(fixture.universe, absolute_channel, value);
-    engine.send_artnet(fixture.universe).map_err(|e| e.to_string())?;
+    engine.send_dmx(fixture.universe).map_err(|e| e.to_string())?;
 
     // Store in programmer
     let mut programmer = state.programmer.lock().map_err(|e| e.to_string())?;
@@ -136,7 +213,7 @@ fn set_fixture_channel(
 fn add_fixture(
     state: State<AppState>,
     fixture: Fixture,
-) -> Result<String, String> {
+) -> std::result::Result<String, String> {
     let mut fixtures = state.fixtures.lock().map_err(|e| e.to_string())?;
     let id = fixture.id.clone();
     fixtures.insert(id.clone(), fixture);
@@ -144,26 +221,41 @@ fn add_fixture(
 }
 
 #[tauri::command]
-fn get_fixtures(state: State<AppState>) -> Result<Vec<Fixture>, String> {
+fn get_fixtures(state: State<AppState>) -> std::result::Result<Vec<Fixture>, String> {
     let fixtures = state.fixtures.lock().map_err(|e| e.to_string())?;
     Ok(fixtures.values().cloned().collect())
 }
 
 #[tauri::command]
-fn blackout(state: State<AppState>) -> Result<String, String> {
+fn blackout(state: State<AppState>) -> std::result::Result<String, String> {
     let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
     engine.blackout();
     for universe in 0..=255 {
-        let _ = engine.send_artnet(universe);
+        let _ = engine.send_dmx(universe);
     }
     Ok("Blackout activated".to_string())
+}
+
+#[tauri::command]
+fn set_protocol(
+    state: State<AppState>,
+    protocol: String,
+) -> std::result::Result<String, String> {
+    let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
+    let dmx_protocol = match protocol.to_lowercase().as_str() {
+        "artnet" | "art-net" => DmxProtocol::ArtNet,
+        "sacn" | "e1.31" => DmxProtocol::Sacn,
+        _ => return Err(format!("Unknown protocol: {}", protocol)),
+    };
+    engine.set_protocol(dmx_protocol);
+    Ok(format!("Protocol set to: {}", protocol))
 }
 
 #[tauri::command]
 fn parse_gdtf_file(
     state: State<AppState>,
     file_path: String,
-) -> Result<GdtfFixtureType, String> {
+) -> std::result::Result<GdtfFixtureType, String> {
     // GDTF files are ZIP archives containing XML files
     let file = fs::File::open(&file_path).map_err(|e| e.to_string())?;
     let mut archive = ZipArchive::new(file).map_err(|e| e.to_string())?;
@@ -201,7 +293,7 @@ fn parse_gdtf_file(
 }
 
 #[tauri::command]
-fn get_fixture_library(state: State<AppState>) -> Result<Vec<GdtfFixtureType>, String> {
+fn get_fixture_library(state: State<AppState>) -> std::result::Result<Vec<GdtfFixtureType>, String> {
     let library = state.fixture_library.lock().map_err(|e| e.to_string())?;
     Ok(library.values().cloned().collect())
 }
@@ -210,17 +302,83 @@ fn get_fixture_library(state: State<AppState>) -> Result<Vec<GdtfFixtureType>, S
 fn configure_artnet(
     state: State<AppState>,
     broadcast_address: String,
-) -> Result<String, String> {
+) -> std::result::Result<String, String> {
     let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
     engine.broadcast_address = broadcast_address.clone();
     Ok(format!("Art-Net configured to broadcast to {}", broadcast_address))
 }
+
+#[tauri::command]
+fn get_network_interfaces() -> std::result::Result<Vec<NetworkInterface>, String> {
+    let addrs = if_addrs::get_if_addrs().map_err(|e| e.to_string())?;
+
+    let interfaces: Vec<NetworkInterface> = addrs
+        .into_iter()
+        .filter_map(|iface| {
+            if let if_addrs::IfAddr::V4(v4_addr) = iface.addr {
+                Some(NetworkInterface {
+                    name: iface.name,
+                    ip: v4_addr.ip.to_string(),
+                    is_loopback: v4_addr.ip.is_loopback(),
+                })
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    Ok(interfaces)
+}
+
+#[tauri::command]
+fn set_network_interface(
+    state: State<AppState>,
+    interface_ip: Option<String>,
+) -> std::result::Result<String, String> {
+    let mut engine = state.dmx_engine.lock().map_err(|e| e.to_string())?;
+    engine.set_network_interface(interface_ip.clone()).map_err(|e| e.to_string())?;
+
+    if let Some(ip) = interface_ip {
+        Ok(format!("Network interface set to {}", ip))
+    } else {
+        Ok("Network interface set to all interfaces (0.0.0.0)".to_string())
+    }
+}
+
+#[tauri::command]
+async fn execute_cli_command(
+    command: String,
+) -> std::result::Result<String, String> {
+    // TODO: Integrate with actual CLI dispatcher
+    // For now, return a placeholder response
+    Ok(format!("CLI command received: {}", command))
+}
+
+// Gamepad capture removed - using Steam Input instead
+// The browser Gamepad API works natively with Steam Input
 
 fn main() {
     let dmx_engine = Arc::new(Mutex::new(DmxEngine::new("2.255.255.255".to_string())));
     let fixtures = Arc::new(Mutex::new(HashMap::new()));
     let fixture_library = Arc::new(Mutex::new(HashMap::new()));
     let programmer = Arc::new(Mutex::new(HashMap::new()));
+
+    // Setup video directory for web remote
+    let video_dir = dirs::video_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("RoControl")
+        .join("Videos");
+
+    // Create video directory if it doesn't exist
+    let _ = std::fs::create_dir_all(&video_dir);
+
+    // Start web server in background
+    let web_video_dir = video_dir.clone();
+    tokio::spawn(async move {
+        if let Err(e) = web_server::start_server(web_video_dir).await {
+            eprintln!("Web server error: {}", e);
+        }
+    });
 
     tauri::Builder::default()
         .manage(AppState {
@@ -235,9 +393,13 @@ fn main() {
             add_fixture,
             get_fixtures,
             blackout,
+            set_protocol,
             parse_gdtf_file,
             get_fixture_library,
             configure_artnet,
+            get_network_interfaces,
+            set_network_interface,
+            execute_cli_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

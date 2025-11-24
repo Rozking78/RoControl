@@ -1,0 +1,223 @@
+.master-fader {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 100px; /* Stop above programmer bar (100px height) */
+  width: 80px; /* Thinner - reduced from 100px */
+  background: #0a0a0a; /* Solid background - darker */
+  border-left: 3px solid #333; /* Hard border instead of glowing */
+  border-radius: 0;
+  padding: 12px 8px;
+  box-shadow: -2px 0 0 rgba(0, 0, 0, 1); /* Hard shadow for clear separation */
+  z-index: 1001; /* Higher than everything else */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.master-fader-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.master-fader-title {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #4a9eff;
+  letter-spacing: 1px;
+}
+
+.master-fader-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Slider Container */
+.master-fader-slider-container {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(to top, #0a0a0a, #1a1a1a);
+  border: 2px solid #333;
+  border-radius: 4px;
+}
+
+.master-fader-track-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #4a9eff, #5eaeff);
+  transition: height 0.1s ease;
+  pointer-events: none;
+  opacity: 0.3;
+  border-radius: 2px;
+}
+
+.master-fader-slider {
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 8px;
+  height: 100%;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.master-fader-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 48px;
+  height: 50px;
+  background: #4a9eff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  cursor: grab;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.8),
+              0 2px 8px rgba(0, 0, 0, 0.5);
+  touch-action: none;
+}
+
+.master-fader-slider::-webkit-slider-thumb:hover {
+  background: #5eaeff;
+}
+
+.master-fader-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  background: #3d8eef;
+  transform: scale(0.95);
+}
+
+.master-fader-slider::-moz-range-thumb {
+  width: 48px;
+  height: 50px;
+  background: #4a9eff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.8),
+              0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Numeric Input */
+.master-fader-numeric {
+  display: flex;
+  justify-content: center;
+}
+
+.master-fader-input {
+  width: 100%;
+  background: #0a0a0a;
+  border: 2px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  padding: 6px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.master-fader-input:hover {
+  border-color: #4a9eff;
+}
+
+.master-fader-input:focus {
+  outline: none;
+  border-color: #4a9eff;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+}
+
+.master-fader-input::-webkit-inner-spin-button,
+.master-fader-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.master-fader-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Quick Levels */
+.master-fader-quick-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-level-btn {
+  background: #0a0a0a;
+  border: 2px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 6px 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-level-btn:hover {
+  border-color: #4a9eff;
+  background: #1a1a1a;
+  transform: scale(1.05);
+}
+
+.quick-level-btn:active {
+  transform: scale(0.98);
+}
+
+/* Top decoration bar */
+.master-fader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #4a9eff;
+  opacity: 0.7;
+}
+
+/* Mobile/Touch adjustments */
+@media (max-width: 768px) {
+  .master-fader {
+    width: 70px;
+    padding: 10px 6px;
+    bottom: 90px; /* Adjust for Steam Deck programmer bar height */
+  }
+
+  .master-fader-slider-container {
+    min-height: 250px;
+  }
+
+  .master-fader-value {
+    font-size: 16px;
+  }
+}
+
+/* Steam Deck specific */
+@media (max-width: 1280px) {
+  .master-fader {
+    width: 70px;
+    bottom: 90px; /* Match Steam Deck programmer bar height */
+  }
+}
+
+/* Make it slightly transparent when not hovered */
+.master-fader {
+  opacity: 0.95;
+  transition: opacity 0.2s;
+}
+
+.master-fader:hover {
+  opacity: 1;
+}

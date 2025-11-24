@@ -1,0 +1,116 @@
+.color-window {
+  height: 100%;
+  overflow: auto;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  gap: 0px;
+  padding: 0px;
+  justify-content: start;
+}
+
+.color-slot {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  position: relative;
+}
+
+.color-slot:hover {
+  border-color: #4a9eff;
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.2);
+}
+
+.color-slot.empty {
+  background: #1a1a1a;
+  border: 1px dashed #333;
+}
+
+.color-slot.empty:hover {
+  border-color: #666;
+}
+
+.color-slot.has-data {
+  border-color: #e91e63;
+  background: #3a2a3a;
+}
+
+.color-slot.empty.record-target {
+  border-color: #ff4444;
+  animation: record-pulse-color 1s infinite;
+}
+
+.color-slot.has-data.record-target {
+  border-color: #ff8844;
+}
+
+.color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  border: 1px solid #222;
+}
+
+.color-number {
+  font-size: 8px;
+  font-weight: bold;
+  color: #e91e63;
+}
+
+.color-empty-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.color-slot-number {
+  font-size: 10px;
+  color: #555;
+  font-weight: 600;
+}
+
+.color-delete-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #ff4444;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-delete-btn:hover {
+  background: #ff6666;
+  transform: scale(1.2);
+}
+
+@keyframes record-pulse-color {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+  }
+}

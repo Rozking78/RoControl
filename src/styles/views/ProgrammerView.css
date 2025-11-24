@@ -1,0 +1,360 @@
+.programmer-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Programmer Info Bar - embedded version of bottom bar */
+.programmer-info-bar {
+  background: linear-gradient(to bottom, #1a1a1a, #151515);
+  border-bottom: 2px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 60px;
+  flex-shrink: 0;
+}
+
+.programmer-info-bar.record-mode {
+  border-bottom-color: #ff4444;
+  background: linear-gradient(to bottom, #2a1a1a, #1f1515);
+}
+
+/* Sections */
+.prog-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: fit-content;
+}
+
+.prog-section.fixture-info {
+  min-width: 150px;
+  flex-shrink: 0;
+  border-right: 1px solid #333;
+  padding-right: 12px;
+}
+
+.prog-section.parameters {
+  flex: 1;
+  min-width: 0;
+}
+
+.prog-section.actions {
+  flex-shrink: 0;
+}
+
+.prog-section.record-indicator {
+  flex-shrink: 0;
+  border-left: 1px solid #ff4444;
+  padding-left: 12px;
+}
+
+/* Section Labels */
+.section-label {
+  font-size: 8px;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Fixture Info */
+.fixture-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  background: #4a9eff;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 0 6px;
+}
+
+.fixture-names {
+  color: #aaa;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-selection {
+  color: #555;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* Parameter List */
+.parameter-list {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.parameter-list::-webkit-scrollbar {
+  height: 4px;
+}
+
+.parameter-list::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.parameter-list::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+
+/* Parameter Chips */
+.parameter-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #252525;
+  border: 2px solid #333;
+  border-radius: 16px;
+  min-width: fit-content;
+  position: relative;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.parameter-chip:hover {
+  background: #2a2a2a;
+  transform: translateY(-1px);
+}
+
+.parameter-chip:active {
+  transform: scale(0.95);
+}
+
+.parameter-chip.active {
+  background: #2a2a2a;
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+}
+
+.parameter-chip.inactive {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.parameter-chip.focused {
+  background: rgba(74, 158, 255, 0.15);
+  border-width: 3px;
+  box-shadow: 0 0 16px rgba(74, 158, 255, 0.6);
+  animation: focusPulse 2s ease-in-out infinite;
+  padding: 4px 9px; /* Adjust for thicker border */
+}
+
+@keyframes focusPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(74, 158, 255, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(74, 158, 255, 0.8); }
+}
+
+.param-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.param-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.param-value {
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  min-width: 24px;
+  text-align: right;
+}
+
+.active-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px currentColor;
+}
+
+.focus-indicator-chip {
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4a9eff;
+  font-size: 14px;
+  font-weight: bold;
+  animation: focusArrowBounce 1s ease-in-out infinite;
+}
+
+@keyframes focusArrowBounce {
+  0%, 100% { left: -8px; }
+  50% { left: -10px; }
+}
+
+.no-params {
+  color: #555;
+  font-style: italic;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+/* Clear Button */
+.clear-programmer-btn {
+  background: #ff4444;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 36px;
+  touch-action: manipulation;
+}
+
+.clear-programmer-btn:hover {
+  background: #ff6666;
+}
+
+.clear-programmer-btn:active {
+  background: #cc3333;
+  transform: scale(0.95);
+}
+
+/* Record Indicator */
+.record-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 68, 68, 0.2);
+  border: 2px solid #ff4444;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #ff4444;
+  animation: recordPulse 2s ease-in-out infinite;
+}
+
+.record-dot {
+  font-size: 14px;
+  animation: recordBlink 1s ease-in-out infinite;
+}
+
+@keyframes recordBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes recordPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(255, 68, 68, 0.6); }
+}
+
+.encoder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  gap: 4px;
+  padding: 4px;
+  flex: 1;
+  overflow: auto;
+}
+
+.programmer-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.encoder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px;
+  aspect-ratio: 1;
+  background: #1a1a1a;
+  border-radius: 4px;
+  justify-content: center;
+}
+
+.encoder-label {
+  font-size: 7px;
+  color: #aaa;
+  margin-bottom: 2px;
+  text-align: center;
+  min-height: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.focus-indicator {
+  margin-left: 2px;
+  color: #4a9eff;
+}
+
+.encoder-wheel {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.encoder-wheel:hover {
+  border-color: #4a9eff;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+}
+
+.encoder-value {
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  z-index: 2;
+}
+
+.encoder-indicator {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background: #4a9eff;
+  transform-origin: bottom center;
+  border-radius: 2px;
+}

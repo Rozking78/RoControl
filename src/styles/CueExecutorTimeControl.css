@@ -1,0 +1,198 @@
+/* Cue/Executor Time Control Styles */
+
+.cue-executor-time-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cue-executor-time-label {
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cue-executor-time-display {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 6px 12px;
+  border: 2px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.cue-executor-time-display.cue {
+  background: rgba(244, 81, 30, 0.2);
+  border-color: #f4511e;
+}
+
+.cue-executor-time-display.cue:hover {
+  background: rgba(244, 81, 30, 0.3);
+  border-color: #ff6f43;
+}
+
+.cue-executor-time-display.executor {
+  background: rgba(67, 160, 71, 0.2);
+  border-color: #43a047;
+}
+
+.cue-executor-time-display.executor:hover {
+  background: rgba(67, 160, 71, 0.3);
+  border-color: #66bb6a;
+}
+
+.cue-executor-time-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+}
+
+.cue-executor-time-unit {
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.cue-executor-time-display.cue .cue-executor-time-unit {
+  color: #f4511e;
+}
+
+.cue-executor-time-display.executor .cue-executor-time-unit {
+  color: #43a047;
+}
+
+.cue-executor-time-edit {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 4px 8px;
+  background: rgba(30, 136, 229, 0.3);
+  border: 2px solid #42a5f5;
+  border-radius: 4px;
+}
+
+.cue-executor-time-input {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.cue-executor-time-input::-webkit-inner-spin-button,
+.cue-executor-time-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.cue-executor-time-presets {
+  display: flex;
+  gap: 4px;
+}
+
+.preset-btn {
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Courier New', monospace;
+}
+
+.preset-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.preset-btn.active {
+  background: #1e88e5;
+  border-color: #1e88e5;
+  color: #fff;
+}
+
+.preset-btn:active {
+  transform: scale(0.95);
+}
+
+.snap-indicator {
+  padding: 4px 8px;
+  background: #fdd835;
+  color: #000;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  animation: pulse-snap 1s ease-in-out infinite;
+}
+
+@keyframes pulse-snap {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Compact version for small screens */
+@media (max-width: 800px) {
+  .cue-executor-time-control {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 10px;
+  }
+
+  .cue-executor-time-label {
+    font-size: 11px;
+  }
+
+  .cue-executor-time-value {
+    font-size: 14px;
+  }
+
+  .preset-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .snap-indicator {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .cue-executor-time-display {
+    border-width: 3px;
+  }
+
+  .preset-btn {
+    border-width: 2px;
+  }
+
+  .preset-btn.active {
+    border-width: 3px;
+  }
+}

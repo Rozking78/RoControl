@@ -1,0 +1,35 @@
+═══════════════════════════════════════════════════════════
+ YOU'RE CURRENTLY BEING ASKED ABOUT DELETING FILES
+═══════════════════════════════════════════════════════════
+
+Press: n (no) - DO NOT DELETE
+
+Press 'n' and Enter for each file it asks about.
+
+The files are NOT corrupted - they're just signed by Valve.
+
+═══════════════════════════════════════════════════════════
+ AFTER YOU'VE ANSWERED ALL THE PROMPTS
+═══════════════════════════════════════════════════════════
+
+If the install still fails, try this command:
+
+sudo pacman -U --noconfirm /var/cache/pacman/pkg/gtk3*.pkg.tar.zst /var/cache/pacman/pkg/webkit2gtk*.pkg.tar.zst /var/cache/pacman/pkg/libsoup*.pkg.tar.zst /var/cache/pacman/pkg/javascriptcoregtk*.pkg.tar.zst 2>/dev/null
+
+Or use this simpler approach:
+
+sudo pacman -Sdd --needed webkit2gtk gtk3 libsoup javascriptcoregtk
+
+The -dd flag skips ALL checks and forces installation.
+
+═══════════════════════════════════════════════════════════
+ OR RUN THE NEW SCRIPT
+═══════════════════════════════════════════════════════════
+
+Press Ctrl+C to cancel the current install, then run:
+
+./install-webkit-force.sh
+
+This script automatically answers 'n' to all prompts.
+
+═══════════════════════════════════════════════════════════

@@ -1,0 +1,102 @@
+/* Gamepad Status Indicator */
+.gamepad-status-indicator {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #4a9eff;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.gamepad-icon {
+  font-size: 18px;
+  animation: pulse-gamepad 2s infinite;
+}
+
+@keyframes pulse-gamepad {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.gamepad-name {
+  font-size: 11px;
+  color: #4a9eff;
+  font-weight: bold;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Gamepad-focused element highlighting */
+.gamepad-focused {
+  outline: 3px solid #4a9eff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.6) !important;
+  z-index: 100;
+  position: relative;
+}
+
+/* Animations for gamepad focus */
+@keyframes gamepadFocusPulse {
+  0%, 100% { outline-width: 3px; }
+  50% { outline-width: 4px; }
+}
+
+.gamepad-focused {
+  animation: gamepadFocusPulse 1.5s infinite;
+}
+
+/* Ensure focus is visible on different element types */
+button.gamepad-focused,
+input.gamepad-focused,
+select.gamepad-focused,
+.encoder.gamepad-focused,
+.preset-slot.gamepad-focused,
+.view-button.gamepad-focused,
+.attribute-call-btn.gamepad-focused {
+  outline: 3px solid #4a9eff !important;
+  outline-offset: 3px !important;
+}
+
+/* Steam Deck specific adjustments */
+@media (max-width: 1280px) and (max-height: 800px) {
+  .gamepad-status-indicator {
+    bottom: 12px;
+    left: 12px;
+    padding: 6px 10px;
+  }
+
+  .gamepad-icon {
+    font-size: 16px;
+  }
+
+  .gamepad-name {
+    font-size: 10px;
+    max-width: 120px;
+  }
+}
+
+/* Don't interfere with Master Fader positioning */
+.gamepad-status-indicator {
+  pointer-events: none;
+}
+
+/* Touchscreen override - hide gamepad indicator */
+@media (hover: none) and (pointer: coarse) {
+  .gamepad-status-indicator {
+    opacity: 0.5;
+  }
+}

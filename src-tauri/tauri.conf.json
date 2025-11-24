@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "SteamDeck DMX",
+    "productName": "RoControl",
     "version": "0.1.0"
   },
   "tauri": {
@@ -41,8 +41,8 @@
       "icon": [
         "icons/icon.png"
       ],
-      "identifier": "com.steamdeck.dmx",
-      "longDescription": "Professional DMX lighting controller optimized for Steam Deck",
+      "identifier": "com.rocontrol.app",
+      "longDescription": "RoControl - Professional DMX lighting controller optimized for Steam Deck with touch interface and gamepad support",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
@@ -51,8 +51,8 @@
         "signingIdentity": null
       },
       "resources": [],
-      "shortDescription": "DMX Controller for Steam Deck",
-      "targets": "all",
+      "shortDescription": "RoControl DMX Lighting Controller",
+      "targets": ["deb", "rpm"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -70,7 +70,7 @@
         "fullscreen": false,
         "height": 800,
         "resizable": true,
-        "title": "SteamDeck DMX Controller",
+        "title": "RoControl",
         "width": 1280,
         "decorations": true
       }

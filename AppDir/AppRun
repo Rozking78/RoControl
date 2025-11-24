@@ -1,0 +1,16 @@
+#!/bin/bash
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+export PATH="${HERE}/usr/bin/:${PATH}"
+export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
+
+# Steam Deck optimizations
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+
+# Disable Steam's on-screen keyboard for this app
+# This prevents the Steam keyboard from popping up when using touch
+export SteamAppId=0
+export STEAM_DISABLE_OSK=1
+
+exec "${HERE}/usr/bin/ro-control" "$@"

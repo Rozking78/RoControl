@@ -1,0 +1,154 @@
+.palettes-view {
+  height: 100%;
+  overflow: auto;
+}
+
+.palette-record-btn {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  border: 2px solid #ff6666;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: preset-record-glow 1.5s infinite;
+}
+
+.palette-record-btn:hover {
+  background: linear-gradient(135deg, #ff6666, #ee2222);
+  transform: scale(1.02);
+}
+
+@keyframes preset-record-glow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(255, 68, 68, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(255, 68, 68, 0.9);
+  }
+}
+
+.user-preset {
+  position: relative;
+  border-color: #ff9800 !important;
+}
+
+.user-preset .palette-color {
+  border-color: #ff9800;
+}
+
+.preset-delete-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #ff4444;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preset-delete-btn:hover {
+  background: #ff6666;
+  transform: scale(1.2);
+}
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  gap: 0px;
+  padding: 0px;
+  justify-content: start;
+}
+
+.palette-button {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.palette-button:hover {
+  border-color: #4a9eff;
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.2);
+}
+
+.palette-color {
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  border: 1px solid #555;
+}
+
+.palette-label {
+  font-size: 8px;
+  color: #ccc;
+  line-height: 1;
+}
+
+/* Empty preset slots */
+.palette-button.empty {
+  background: #1a1a1a;
+  border: 1px dashed #333;
+}
+
+.palette-button.empty:hover {
+  border-color: #666;
+}
+
+.palette-empty-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.palette-number {
+  font-size: 10px;
+  color: #555;
+  font-weight: 600;
+}
+
+.palette-button.empty.record-target {
+  border-color: #ff4444;
+  animation: record-pulse-preset 1s infinite;
+}
+
+.palette-button.has-data {
+  border-color: #4a9eff;
+  background: #2a3a4a;
+}
+
+.palette-button.has-data.record-target {
+  border-color: #ff8844;
+}
+
+@keyframes record-pulse-preset {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+  }
+}

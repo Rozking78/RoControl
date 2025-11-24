@@ -1,0 +1,233 @@
+.freeform-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.freeform-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Grid dots pattern */
+  background-image: radial-gradient(circle, #333 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* Floating Windows */
+.freeform-window {
+  position: absolute;
+  background: #1a1a1a;
+  border: 2px solid #4a9eff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6),
+              0 0 20px rgba(74, 158, 255, 0.2);
+  overflow: hidden;
+}
+
+.freeform-window.dragging {
+  opacity: 0.9;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8),
+              0 0 30px rgba(74, 158, 255, 0.4);
+}
+
+.freeform-window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid #333;
+  cursor: move;
+  user-select: none;
+  min-height: 36px;
+}
+
+.freeform-window-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a9eff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.freeform-window-close {
+  background: #333;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.freeform-window-close:hover {
+  background: #ff4444;
+}
+
+.freeform-window-content {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+  background: #1a1a1a;
+}
+
+.freeform-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, #4a9eff 50%);
+  border-bottom-right-radius: 6px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.freeform-resize-handle:hover {
+  opacity: 1;
+}
+
+.freeform-resize-handle::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* Context Menu */
+.freeform-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.freeform-context-menu {
+  position: fixed;
+  background: #2a2a2a;
+  border: 2px solid #4a9eff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  min-width: 220px;
+  max-height: 70vh;
+  overflow-y: auto;
+  z-index: 10000;
+}
+
+.freeform-menu-header {
+  padding: 12px 16px;
+  background: #333;
+  color: #4a9eff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #444;
+}
+
+.freeform-menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 13px;
+  transition: all 0.15s;
+  border-bottom: 1px solid #333;
+}
+
+.freeform-menu-item:last-child {
+  border-bottom: none;
+}
+
+.freeform-menu-item:hover {
+  background: #4a9eff;
+  padding-left: 24px;
+}
+
+/* Instructions */
+.freeform-instructions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.freeform-instructions-content {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px dashed #4a9eff;
+  border-radius: 12px;
+  padding: 30px 40px;
+  text-align: center;
+  color: #ccc;
+}
+
+.freeform-instructions h3 {
+  color: #4a9eff;
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.freeform-instructions p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #aaa;
+}
+
+/* Scrollbar for menu */
+.freeform-context-menu::-webkit-scrollbar {
+  width: 16px;
+}
+
+.freeform-context-menu::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.freeform-context-menu::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 8px;
+  border: 3px solid #1a1a1a;
+}
+
+.freeform-context-menu::-webkit-scrollbar-thumb:hover {
+  background: #4a9eff;
+}
+
+/* Window content scrollbar */
+.freeform-window-content::-webkit-scrollbar {
+  width: 16px;
+}
+
+.freeform-window-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.freeform-window-content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 8px;
+  border: 3px solid #1a1a1a;
+}
+
+.freeform-window-content::-webkit-scrollbar-thumb:hover {
+  background: #4a9eff;
+}

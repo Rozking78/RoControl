@@ -1,0 +1,482 @@
+/* Video Output Grid - Preset Window Style */
+
+.video-output-grid-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0a0a0a;
+  color: #ccc;
+  padding: 16px;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+/* Header - Similar to FlexWindow */
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  border: 2px solid #4a9eff;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.2);
+}
+
+.grid-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4a9eff;
+  letter-spacing: 0.5px;
+}
+
+.header-stats {
+  font-size: 12px;
+  color: #4a9eff;
+  font-weight: 600;
+}
+
+/* Output Grid - Like Preset Grid */
+.output-grid {
+  display: grid;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Output Squares - Like Preset Slots */
+.output-square {
+  position: relative;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.output-square.empty {
+  border-style: dashed;
+  border-color: #444;
+}
+
+.output-square.empty:hover {
+  border-color: #4a9eff;
+  background: rgba(74, 158, 255, 0.05);
+}
+
+.output-square.empty:active {
+  background: rgba(74, 158, 255, 0.1);
+  transform: scale(0.98);
+}
+
+/* Filled Squares */
+.output-square.filled {
+  background: linear-gradient(135deg, #252525, #1a1a1a);
+  border-color: #4a9eff;
+}
+
+.output-square.filled:hover {
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border-color: #5aaeff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+}
+
+.output-square.filled.selected {
+  border-color: #00ff88;
+  background: linear-gradient(135deg, #1a2a1a, #152015);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+/* Empty Hint */
+.empty-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Output Content */
+.output-type-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 20px;
+}
+
+.output-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a9eff;
+  margin-bottom: 4px;
+}
+
+.output-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.output-status {
+  font-size: 10px;
+  color: #888;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-active {
+  color: #00ff88;
+  font-size: 12px;
+}
+
+.status-inactive {
+  color: #666;
+  font-size: 12px;
+}
+
+/* Configuration Panel - Sidebar Style */
+.output-config-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 350px;
+  background: #0f0f0f;
+  border-left: 2px solid #4a9eff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  border-bottom: 2px solid #4a9eff;
+}
+
+.config-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4a9eff;
+  letter-spacing: 0.5px;
+}
+
+.close-config-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 32px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.close-config-btn:hover {
+  color: #ff4444;
+}
+
+/* Config Form */
+.config-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-input,
+.config-select {
+  background: #1a1a1a;
+  border: 2px solid #333;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.config-input:focus,
+.config-select:focus {
+  border-color: #4a9eff;
+  background: #1f1f1f;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
+}
+
+.field-note {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Type Selector */
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  color: #aaa;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-btn:hover {
+  border-color: #4a9eff;
+  background: #1f1f1f;
+}
+
+.type-btn.active {
+  border-color: #4a9eff;
+  background: rgba(74, 158, 255, 0.1);
+  color: #4a9eff;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.3);
+}
+
+.type-icon {
+  font-size: 24px;
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #ccc;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Config Actions */
+.config-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #222;
+}
+
+.delete-btn,
+.apply-btn {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn {
+  background: #ff4444;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background: #ff5555;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
+}
+
+.apply-btn {
+  background: #4a9eff;
+  color: #000;
+}
+
+.apply-btn:hover {
+  background: #5aaeff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+}
+
+/* Output Info - Similar to FlexWindow footer */
+.output-info {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 0 20px 20px 20px;
+}
+
+.output-info h4 {
+  margin: 0 0 12px 0;
+  color: #4a9eff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.output-info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.output-info li {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.output-info li strong {
+  color: #ccc;
+  margin-right: 6px;
+}
+
+.output-info li:last-child {
+  margin-bottom: 0;
+}
+
+/* Footer - Like FlexWindow */
+.grid-footer {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-info {
+  display: flex;
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #888;
+}
+
+.info-icon {
+  font-size: 16px;
+}
+
+.footer-hint {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Scrollbar */
+.video-output-grid-view::-webkit-scrollbar,
+.output-config-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.video-output-grid-view::-webkit-scrollbar-track,
+.output-config-panel::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.video-output-grid-view::-webkit-scrollbar-thumb,
+.output-config-panel::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.video-output-grid-view::-webkit-scrollbar-thumb:hover,
+.output-config-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Touch Optimization */
+@media (hover: none) {
+  .output-square {
+    min-height: 140px;
+  }
+
+  .config-input,
+  .config-select {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  .type-btn {
+    padding: 20px 12px;
+  }
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .output-config-panel {
+    width: 100%;
+  }
+
+  .output-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

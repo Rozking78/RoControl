@@ -1,0 +1,151 @@
+/* Program Time Control Styles */
+
+.program-time-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.program-time-label {
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.program-time-display {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 6px 12px;
+  background: rgba(30, 136, 229, 0.2);
+  border: 2px solid #1e88e5;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.program-time-display:hover {
+  background: rgba(30, 136, 229, 0.3);
+  border-color: #42a5f5;
+}
+
+.program-time-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+}
+
+.program-time-unit {
+  font-size: 11px;
+  color: #1e88e5;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.program-time-edit {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 4px 8px;
+  background: rgba(30, 136, 229, 0.3);
+  border: 2px solid #42a5f5;
+  border-radius: 4px;
+}
+
+.program-time-input {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.program-time-input::-webkit-inner-spin-button,
+.program-time-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.program-time-presets {
+  display: flex;
+  gap: 4px;
+}
+
+.preset-btn {
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Courier New', monospace;
+}
+
+.preset-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.preset-btn.active {
+  background: #1e88e5;
+  border-color: #1e88e5;
+  color: #fff;
+}
+
+.preset-btn:active {
+  transform: scale(0.95);
+}
+
+/* Compact version for small screens */
+@media (max-width: 800px) {
+  .program-time-control {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 10px;
+  }
+
+  .program-time-label {
+    font-size: 11px;
+  }
+
+  .program-time-value {
+    font-size: 14px;
+  }
+
+  .preset-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .program-time-display {
+    border-width: 3px;
+  }
+
+  .preset-btn {
+    border-width: 2px;
+  }
+
+  .preset-btn.active {
+    border-width: 3px;
+  }
+}

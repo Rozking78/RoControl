@@ -1,0 +1,246 @@
+/* Steam Deck Integration Styles */
+
+.steamdeck-integration {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Steam Deck HUD - Top Right Corner */
+.steamdeck-hud {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #1e88e5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.steamdeck-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.steamdeck-icon {
+  font-size: 18px;
+}
+
+.steamdeck-label {
+  font-weight: bold;
+  color: #1e88e5;
+  font-size: 14px;
+}
+
+.steamdeck-mode,
+.steamdeck-window,
+.steamdeck-combo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.mode-label,
+.window-label,
+.combo-label {
+  color: #aaa;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mode-value {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.mode-navigate {
+  background: #1e88e5;
+  color: #fff;
+}
+
+.mode-cue {
+  background: #f4511e;
+  color: #fff;
+}
+
+.mode-executor {
+  background: #43a047;
+  color: #fff;
+}
+
+.mode-command {
+  background: #fdd835;
+  color: #000;
+}
+
+.window-value {
+  font-weight: bold;
+  color: #1e88e5;
+}
+
+.combo-value {
+  font-weight: bold;
+  color: #fdd835;
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Help Overlay */
+.steamdeck-help {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #1e88e5;
+  border-radius: 12px;
+  padding: 24px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  z-index: 10000;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+}
+
+.steamdeck-help h3 {
+  margin: 0 0 20px 0;
+  color: #1e88e5;
+  font-size: 24px;
+  text-align: center;
+  border-bottom: 2px solid #1e88e5;
+  padding-bottom: 12px;
+}
+
+.help-section {
+  margin-bottom: 20px;
+}
+
+.help-section h4 {
+  color: #fdd835;
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.help-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-section li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.help-section li:last-child {
+  border-bottom: none;
+}
+
+/* Steam Deck Mode Indicator (Full Screen) */
+.steamdeck-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.steamdeck-mode-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--mode-color), transparent);
+}
+
+.steamdeck-mode-overlay.mode-navigate {
+  --mode-color: #1e88e5;
+}
+
+.steamdeck-mode-overlay.mode-cue {
+  --mode-color: #f4511e;
+}
+
+.steamdeck-mode-overlay.mode-executor {
+  --mode-color: #43a047;
+}
+
+.steamdeck-mode-overlay.mode-command {
+  --mode-color: #fdd835;
+}
+
+/* Responsive - Hide on small screens or show minimal version */
+@media (max-width: 800px) {
+  .steamdeck-hud {
+    top: 5px;
+    right: 5px;
+    padding: 8px 12px;
+    font-size: 11px;
+    min-width: 150px;
+  }
+
+  .steamdeck-icon {
+    font-size: 14px;
+  }
+
+  .steamdeck-label {
+    font-size: 12px;
+  }
+
+  .mode-label,
+  .window-label,
+  .combo-label {
+    font-size: 10px;
+  }
+}
+
+/* Accessibility - High contrast mode */
+@media (prefers-contrast: high) {
+  .steamdeck-hud {
+    background: rgba(0, 0, 0, 1);
+    border-color: #fff;
+  }
+
+  .mode-navigate,
+  .mode-cue,
+  .mode-executor,
+  .mode-command {
+    border: 1px solid #fff;
+  }
+}
