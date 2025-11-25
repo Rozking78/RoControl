@@ -11,11 +11,15 @@ import { initializeAutoKeyboard } from './utils/autoKeyboard'
 import { getDMXOutputManager } from './utils/dmxOutputManager'
 import { CLIDispatcher } from './utils/cliDispatcher'
 import VideoPlaybackManager from './utils/videoPlaybackManager'
-// import { ArtNetConfig } from './utils/artnet'
-// import { SACNConfig } from './utils/sacn'
+import { ArtNetConfig } from './utils/artnet'
+import { SACNConfig } from './utils/sacn'
+import ProtocolSettings from './components/views/ProtocolSettings'
+import { UndoManager, createSnapshot, applySnapshot } from './utils/undoManager'
 
 // New feature imports
 import SteamDeckIntegration from './components/SteamDeckIntegration'
+import SteamDeckSetup from './components/SteamDeckSetup'
+import ElgatoStreamDeckSetup from './components/ElgatoStreamDeckSetup'
 import ProgramTimeControl from './components/ProgramTimeControl'
 import CueExecutorTimeControl from './components/CueExecutorTimeControl'
 import ClocksConfigWindow from './components/ClocksConfigWindow'
@@ -35,8 +39,14 @@ function App() {
     blue: 0,
   })
   const [faderValues, setFaderValues] = useState(Array(6).fill(0))
-  const [artnetConfig, setArtnetConfig] = useState('2.255.255.255')
-  const [sacnConfig, setSacnConfig] = useState(null)
+  const [artnetConfig, setArtnetConfig] = useState(() => {
+    const saved = localStorage.getItem('dmx_artnet_config')
+    return saved ? ArtNetConfig.fromJSON(JSON.parse(saved)) : new ArtNetConfig()
+  })
+  const [sacnConfig, setSacnConfig] = useState(() => {
+    const saved = localStorage.getItem('dmx_sacn_config')
+    return saved ? SACNConfig.fromJSON(JSON.parse(saved)) : new SACNConfig()
+  })
   const [dmxProtocol, setDmxProtocol] = useState('artnet')
   const [isBlackout, setIsBlackout] = useState(false)
   const [networkInterfaces, setNetworkInterfaces] = useState([])
@@ -67,6 +77,8 @@ function App() {
       buttonR3: 'None',
       buttonL4: 'None',
       buttonR4: 'None',
+      buttonL5: 'None',
+      buttonR5: 'None',
       dpadUp: 'Increment',
       dpadDown: 'Decrement',
       dpadLeft: 'Previous Channel',
@@ -86,6 +98,7 @@ function App() {
     return saved ? JSON.parse(saved) : []
   })
   const [isRecording, setIsRecording] = useState(false)
+  const [highlightActive, setHighlightActive] = useState(false)
 
   // New feature states for FlexWindow, Programmer Pro, etc.
   const [activeFeatureSet, setActiveFeatureSet] = useState('color')
@@ -122,6 +135,7 @@ function App() {
   // New feature managers
   const [clocksManager] = useState(() => new ClocksManager())
   const [groupHandleManager] = useState(() => new GroupHandleManager())
+  const [undoManager] = useState(() => new UndoManager(50))
 
   // New feature states
   const [programTime, setProgramTime] = useState(0)
@@ -140,6 +154,68 @@ function App() {
     channel_count: 6,
     quantity: 1
   })
+
+  // Comprehensive gamepad command options
+  const GAMEPAD_COMMAND_OPTIONS = [
+    'None',
+    // System Commands
+    'Setup',
+    'Blackout',
+    'Clear',
+    'Clear All',
+    'Locate',
+    'Highlight',
+    'Undo',
+    'Redo',
+    // Selection Commands
+    'Select First Fixture',
+    'Previous Fixture',
+    'Next Fixture',
+    'Select All',
+    'Clear Selection',
+    // Recording Commands
+    'Record Cue',
+    'Record Preset',
+    'Toggle Record',
+    'Update',
+    // Feature Set Commands
+    'Intensity',
+    'Position',
+    'Color',
+    'Focus',
+    'Gobo',
+    'Beam',
+    // Preset Commands
+    'At Full',
+    'At 50',
+    'At 0',
+    // Fan Commands
+    'Fan Left',
+    'Fan Right',
+    'Fan Center',
+    // Cue Commands
+    'Go Cue 1',
+    'Go Cue 2',
+    'Go Cue 3',
+    'Go Cue 4',
+    'Go Cue 5',
+    // Executor Commands
+    'Go Exec 1',
+    'Go Exec 2',
+    'Go Exec 3',
+    // Time Commands
+    'Time 0',
+    'Time 1',
+    'Time 3',
+    'Time 5',
+    // Group Commands
+    'Group 1',
+    'Group 2',
+    'Group 3',
+    // View Commands
+    'Toggle Edit Mode',
+    'Toggle Keyboard',
+  ]
 
   // Fixture profiles with channel definitions
   const fixtureProfiles = {
@@ -198,6 +274,19 @@ function App() {
   useEffect(() => { gamepadMappingsRef.current = gamepadMappings }, [gamepadMappings])
   useEffect(() => { incrementSpeedRef.current = incrementSpeed }, [incrementSpeed])
   useEffect(() => { recordModeRef.current = recordMode }, [recordMode])
+
+  // Save protocol configs to localStorage
+  useEffect(() => {
+    if (artnetConfig) {
+      localStorage.setItem('dmx_artnet_config', JSON.stringify(artnetConfig.toJSON()))
+    }
+  }, [artnetConfig])
+
+  useEffect(() => {
+    if (sacnConfig) {
+      localStorage.setItem('dmx_sacn_config', JSON.stringify(sacnConfig.toJSON()))
+    }
+  }, [sacnConfig])
 
   // Protocol configs removed temporarily due to crash
 
@@ -422,6 +511,53 @@ function App() {
     })
   }
 
+  // Undo/Redo handlers
+  const saveStateSnapshot = (description) => {
+    const snapshot = createSnapshot(description, {
+      selectedFixtures,
+      encoderValues,
+      activeFeatureSet,
+      recordedCues,
+      isBlackout,
+      programTime,
+      masterFaderValue,
+      highlightActive
+    })
+    undoManager.pushState(snapshot)
+  }
+
+  const handleUndo = () => {
+    const prevState = undoManager.undo()
+    if (prevState) {
+      applySnapshot(prevState, {
+        setSelectedFixtures,
+        setEncoderValues,
+        setActiveFeatureSet,
+        setRecordedCues,
+        setIsBlackout,
+        setProgramTime,
+        setMasterFaderValue,
+        setHighlightActive
+      })
+    }
+  }
+
+  const handleRedo = () => {
+    const nextState = undoManager.redo()
+    if (nextState) {
+      applySnapshot(nextState, {
+        setSelectedFixtures,
+        setEncoderValues,
+        setActiveFeatureSet,
+        setRecordedCues,
+        setIsBlackout,
+        setProgramTime,
+        setMasterFaderValue,
+        setHighlightActive
+      })
+    }
+  }
+
   const applyColorPalette = (color) => {
     // Find and set RGB channels if they exist
     const findAndSetChannel = (name, value) => {
@@ -639,22 +775,48 @@ function App() {
     const selected = selectedFixturesRef.current
 
     switch (actionName) {
-      case 'Select First Fixture':
-        if (fixtures.length > 0) {
-          toggleFixtureSelection(fixtures[0].id)
-        }
+      // System Commands
+      case 'Setup':
+        setSetupTab('patch')
+        setShowSetup(true)
         break
       case 'Blackout':
         handleBlackout()
         break
+      case 'Clear':
       case 'Clear Selection':
         handleClear()
+        break
+      case 'Clear All':
+        handleClear()
+        setEncoderValues({
+          dimmer: 0,
+          pan: 128,
+          tilt: 128,
+          red: 0,
+          green: 0,
+          blue: 0,
+        })
         break
       case 'Locate':
         handleLocate()
         break
-      case 'Record Cue':
-        handleRecordCue()
+      case 'Undo':
+        handleUndo()
+        break
+      case 'Redo':
+        handleRedo()
+        break
+      case 'Highlight':
+        // Toggle highlight mode
+        setActiveFeatureSet(prev => prev === 'highlight' ? 'intensity' : 'highlight')
+        break
+
+      // Selection Commands
+      case 'Select First Fixture':
+        if (fixtures.length > 0) {
+          toggleFixtureSelection(fixtures[0].id)
+        }
         break
       case 'Previous Fixture':
         if (fixtures.length > 0 && selected.size > 0) {
@@ -679,16 +841,16 @@ function App() {
       case 'Select All':
         setSelectedFixtures(new Set(fixtures.map(f => f.id)))
         break
-      case 'Clear All':
-        handleClear()
-        setEncoderValues({
-          dimmer: 0,
-          pan: 128,
-          tilt: 128,
-          red: 0,
-          green: 0,
-          blue: 0,
-        })
+
+      // Recording Commands
+      case 'Record Cue':
+        handleRecordCue()
+        break
+      case 'Record Preset':
+        // Record to preset - default to color preset 1
+        if (handleCLICommand) {
+          handleCLICommand('record 3.1')
+        }
         break
       case 'Toggle Record':
         if (recordModeRef.current) {
@@ -697,6 +859,150 @@ function App() {
           enterRecordMode()
         }
         break
+      case 'Update':
+        // Update current preset/cue
+        if (handleCLICommand) {
+          handleCLICommand('update')
+        }
+        break
+
+      // Feature Set Commands
+      case 'Intensity':
+        setActiveFeatureSet('intensity')
+        break
+      case 'Position':
+        setActiveFeatureSet('position')
+        break
+      case 'Color':
+        setActiveFeatureSet('color')
+        break
+      case 'Focus':
+        setActiveFeatureSet('focus')
+        break
+      case 'Gobo':
+        setActiveFeatureSet('gobo')
+        break
+      case 'Beam':
+        setActiveFeatureSet('beam')
+        break
+
+      // Preset Commands
+      case 'At Full':
+        if (handleCLICommand) {
+          handleCLICommand('at 255')
+        }
+        break
+      case 'At 50':
+        if (handleCLICommand) {
+          handleCLICommand('at 128')
+        }
+        break
+      case 'At 0':
+        if (handleCLICommand) {
+          handleCLICommand('at 0')
+        }
+        break
+
+      // Fan Commands
+      case 'Fan Left':
+        if (handleCLICommand) {
+          handleCLICommand('fan left')
+        }
+        break
+      case 'Fan Right':
+        if (handleCLICommand) {
+          handleCLICommand('fan right')
+        }
+        break
+      case 'Fan Center':
+        if (handleCLICommand) {
+          handleCLICommand('fan center')
+        }
+        break
+
+      // Cue Commands
+      case 'Go Cue 1':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 1')
+        }
+        break
+      case 'Go Cue 2':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 2')
+        }
+        break
+      case 'Go Cue 3':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 3')
+        }
+        break
+      case 'Go Cue 4':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 4')
+        }
+        break
+      case 'Go Cue 5':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 5')
+        }
+        break
+
+      // Executor Commands
+      case 'Go Exec 1':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 1')
+        }
+        break
+      case 'Go Exec 2':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 2')
+        }
+        break
+      case 'Go Exec 3':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 3')
+        }
+        break
+
+      // Time Commands
+      case 'Time 0':
+        setProgramTime(0)
+        break
+      case 'Time 1':
+        setProgramTime(1)
+        break
+      case 'Time 3':
+        setProgramTime(3)
+        break
+      case 'Time 5':
+        setProgramTime(5)
+        break
+
+      // Group Commands
+      case 'Group 1':
+        if (handleCLICommand) {
+          handleCLICommand('group 1')
+        }
+        break
+      case 'Group 2':
+        if (handleCLICommand) {
+          handleCLICommand('group 2')
+        }
+        break
+      case 'Group 3':
+        if (handleCLICommand) {
+          handleCLICommand('group 3')
+        }
+        break
+
+      // View Commands
+      case 'Toggle Edit Mode':
+        setGridEditMode(prev => !prev)
+        break
+      case 'Toggle Keyboard':
+        setShowKeyboard(prev => !prev)
+        break
+
       case 'None':
         // Do nothing
         break
@@ -990,6 +1296,24 @@ function App() {
             }
           }
 
+          // L5 button (additional grip button - button 18)
+          if (gamepad.buttons[18] && gamepad.buttons[18].pressed) {
+            if (now - lastButtonPress.time > buttonDebounceTime || lastButtonPress.button !== 18) {
+              lastButtonPress.time = now
+              lastButtonPress.button = 18
+              executeGamepadAction(gamepadMappingsRef.current.buttonL5)
+            }
+          }
+
+          // R5 button (additional grip button - button 19)
+          if (gamepad.buttons[19] && gamepad.buttons[19].pressed) {
+            if (now - lastButtonPress.time > buttonDebounceTime || lastButtonPress.button !== 19) {
+              lastButtonPress.time = now
+              lastButtonPress.button = 19
+              executeGamepadAction(gamepadMappingsRef.current.buttonR5)
+            }
+          }
+
           // Right Joystick (Axes 2 and 3)
           const rightStickXChannel = findChannel(gamepadMappingsRef.current.rightStickX)
           const rightStickYChannel = findChannel(gamepadMappingsRef.current.rightStickY)
@@ -1255,7 +1579,10 @@ function App() {
       videoRestart: handleVideoRestart,
       videoLoop: handleVideoLoop,
       videoSpeed: handleVideoSpeed,
-      videoRoute: handleVideoRoute
+      videoRoute: handleVideoRoute,
+      handleUndo,
+      handleRedo,
+      undoManager
     }
 
     const dispatcher = new CLIDispatcher(appState, appActions)
@@ -1382,7 +1709,7 @@ function App() {
           </button>
         </div>
         <div className="top-bar-right">
-          {gamepadDebug.connected && (
+          {gamepadDebug.connected && !document.documentElement.classList.contains('steam-deck-gaming') && (
             <span style={{ fontSize: '11px', color: '#00ff88', marginRight: '10px' }}>
               🎮 Gamepad OK
             </span>
@@ -1399,7 +1726,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="main-content" style={{ height: 'calc(100vh - 50px - 80px)', overflow: 'auto', paddingBottom: '0' }}>
+      <div className="main-content" style={{ height: 'calc(100vh - 50px - 160px)', overflow: 'auto', paddingBottom: '0' }}>
         <GridLayout
           appState={appState}
           editMode={gridEditMode}
@@ -1408,8 +1735,8 @@ function App() {
         />
       </div>
 
-      {/* Gamepad Debug Display */}
-      {showGamepadDebug && (
+      {/* Gamepad Debug Display - Hidden in gaming mode */}
+      {showGamepadDebug && !document.documentElement.classList.contains('steam-deck-gaming') && (
         <div style={{
           position: 'fixed',
           bottom: '40px',
@@ -1466,6 +1793,8 @@ function App() {
                 {setupTab === 'artnet' ? 'Network Configuration' :
                  setupTab === 'patch' ? 'Patch Fixtures' :
                  setupTab === 'backup' ? 'Show Backup & Recall' :
+                 setupTab === 'steamdeck' ? 'Steam Deck' :
+                 setupTab === 'elgatostreamdeck' ? 'Elgato Stream Deck' :
                  'Gamepad Mapping'}
               </h2>
               <button className="modal-close" onClick={() => setShowSetup(false)}>✕</button>
@@ -1496,74 +1825,28 @@ function App() {
               >
                 Gamepad
               </button>
+              <button
+                className={`modal-tab ${setupTab === 'steamdeck' ? 'active' : ''}`}
+                onClick={() => setSetupTab('steamdeck')}
+              >
+                Steam Deck
+              </button>
+              <button
+                className={`modal-tab ${setupTab === 'elgatostreamdeck' ? 'active' : ''}`}
+                onClick={() => setSetupTab('elgatostreamdeck')}
+              >
+                Elgato Stream Deck
+              </button>
             </div>
 
             <div className="modal-body">
               {setupTab === 'artnet' ? (
-                <div className="setup-section">
-                  <h3>Network Configuration</h3>
-                  <div className="form-group">
-                    <label>DMX Protocol:</label>
-                    <select
-                      value={dmxProtocol}
-                      onChange={(e) => setDmxProtocol(e.target.value)}
-                    >
-                      <option value="artnet">Art-Net</option>
-                      <option value="sacn">sACN (E1.31)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Broadcast Address:</label>
-                    <input
-                      type="text"
-                      value={artnetConfig}
-                      onChange={(e) => setArtnetConfig(e.target.value)}
-                      placeholder="2.255.255.255"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Network Interface:</label>
-                    <select
-                      value={selectedInterface}
-                      onChange={(e) => setSelectedInterface(e.target.value)}
-                    >
-                      <option value="all">All Interfaces (0.0.0.0)</option>
-                      {networkInterfaces.map((iface) => (
-                        <option key={iface.ip} value={iface.ip}>
-                          {iface.name} - {iface.ip}
-                          {iface.is_loopback ? ' (loopback)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-help">
-                    <p><strong>Network Interface:</strong></p>
-                    <ul>
-                      <li><strong>All Interfaces (0.0.0.0)</strong> - Send DMX on all network interfaces</li>
-                      <li><strong>Specific Interface</strong> - Send DMX only on selected WiFi/Ethernet adapter</li>
-                      <li>Choose the interface connected to your lighting network</li>
-                      <li>Loopback (127.x.x.x) is only for testing</li>
-                    </ul>
-                    <br/>
-                    <p><strong>Art-Net configurations:</strong></p>
-                    <ul>
-                      <li><code>2.255.255.255</code> - Standard Art-Net broadcast</li>
-                      <li><code>10.255.255.255</code> - Class A private network</li>
-                      <li><code>192.168.1.255</code> - Class C private network</li>
-                    </ul>
-                    <p>Port: <code>6454</code> (UDP)</p>
-                    <br/>
-                    <p><strong>sACN (E1.31):</strong></p>
-                    <ul>
-                      <li>Multicast: <code>239.255.0.x</code> (auto-configured)</li>
-                      <li>Unicast: Use specific device IP</li>
-                      <li>Port: <code>5568</code> (UDP)</li>
-                    </ul>
-                  </div>
-                  <button className="btn-primary" onClick={handleArtnetConfig}>
-                    Apply Network Configuration
-                  </button>
-                </div>
+                <ProtocolSettings
+                  artnetConfig={artnetConfig}
+                  sacnConfig={sacnConfig}
+                  setArtnetConfig={setArtnetConfig}
+                  setSacnConfig={setSacnConfig}
+                />
               ) : setupTab === 'patch' ? (
                 <div className="setup-section">
                   <h3>Add New Fixture</h3>
@@ -1694,6 +1977,10 @@ function App() {
                     ))}
                   </div>
                 </div>
+              ) : setupTab === 'steamdeck' ? (
+                <SteamDeckSetup />
+              ) : setupTab === 'elgatostreamdeck' ? (
+                <ElgatoStreamDeckSetup />
               ) : setupTab === 'gamepad' ? (
                 <div className="setup-section">
                   <h3>Steam Input Configuration</h3>
@@ -1724,17 +2011,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1748,17 +2027,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1772,17 +2043,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1796,17 +2059,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -1827,17 +2082,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1851,17 +2098,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1875,17 +2114,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1899,17 +2130,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1923,17 +2146,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1947,17 +2162,41 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>L5 (Left Grip 2):</label>
+                      <select
+                        value={gamepadMappings.buttonL5 || 'None'}
+                        onChange={(e) => {
+                          const newMappings = {...gamepadMappings, buttonL5: e.target.value}
+                          setGamepadMappings(newMappings)
+                          localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
+                        }}
+                      >
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>R5 (Right Grip 2):</label>
+                      <select
+                        value={gamepadMappings.buttonR5 || 'None'}
+                        onChange={(e) => {
+                          const newMappings = {...gamepadMappings, buttonR5: e.target.value}
+                          setGamepadMappings(newMappings)
+                          localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
+                        }}
+                      >
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
                   </div>

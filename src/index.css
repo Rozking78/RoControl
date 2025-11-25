@@ -4,6 +4,34 @@
   box-sizing: border-box;
 }
 
+/* Steam Deck Display Scaling Compensation */
+html.steam-deck-desktop {
+  /* Desktop mode: Scale down to compensate for DPI scaling */
+  zoom: 0.75;
+  -moz-transform: scale(0.75);
+  -moz-transform-origin: 0 0;
+}
+
+html.steam-deck-gaming {
+  /* Gaming mode: Scale up for better visibility */
+  zoom: 1.15;
+  -moz-transform: scale(1.15);
+  -moz-transform-origin: 0 0;
+}
+
+/* Adjust body/root for scaled content */
+html.steam-deck-desktop body,
+html.steam-deck-desktop #root {
+  width: 133.33vw; /* Compensate for 0.75 zoom */
+  height: 133.33vh;
+}
+
+html.steam-deck-gaming body,
+html.steam-deck-gaming #root {
+  width: 100vw;
+  height: 100vh;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #0a0a0a;
