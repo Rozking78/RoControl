@@ -148,6 +148,66 @@ function App() {
     quantity: 1
   })
 
+  // Comprehensive gamepad command options
+  const GAMEPAD_COMMAND_OPTIONS = [
+    'None',
+    // System Commands
+    'Setup',
+    'Blackout',
+    'Clear',
+    'Clear All',
+    'Locate',
+    'Highlight',
+    // Selection Commands
+    'Select First Fixture',
+    'Previous Fixture',
+    'Next Fixture',
+    'Select All',
+    'Clear Selection',
+    // Recording Commands
+    'Record Cue',
+    'Record Preset',
+    'Toggle Record',
+    'Update',
+    // Feature Set Commands
+    'Intensity',
+    'Position',
+    'Color',
+    'Focus',
+    'Gobo',
+    'Beam',
+    // Preset Commands
+    'At Full',
+    'At 50',
+    'At 0',
+    // Fan Commands
+    'Fan Left',
+    'Fan Right',
+    'Fan Center',
+    // Cue Commands
+    'Go Cue 1',
+    'Go Cue 2',
+    'Go Cue 3',
+    'Go Cue 4',
+    'Go Cue 5',
+    // Executor Commands
+    'Go Exec 1',
+    'Go Exec 2',
+    'Go Exec 3',
+    // Time Commands
+    'Time 0',
+    'Time 1',
+    'Time 3',
+    'Time 5',
+    // Group Commands
+    'Group 1',
+    'Group 2',
+    'Group 3',
+    // View Commands
+    'Toggle Edit Mode',
+    'Toggle Keyboard',
+  ]
+
   // Fixture profiles with channel definitions
   const fixtureProfiles = {
     'Tree Par': {
@@ -659,22 +719,42 @@ function App() {
     const selected = selectedFixturesRef.current
 
     switch (actionName) {
-      case 'Select First Fixture':
-        if (fixtures.length > 0) {
-          toggleFixtureSelection(fixtures[0].id)
-        }
+      // System Commands
+      case 'Setup':
+        setSetupTab('patch')
+        setShowSetup(true)
         break
       case 'Blackout':
         handleBlackout()
         break
+      case 'Clear':
       case 'Clear Selection':
         handleClear()
+        break
+      case 'Clear All':
+        handleClear()
+        setEncoderValues({
+          dimmer: 0,
+          pan: 128,
+          tilt: 128,
+          red: 0,
+          green: 0,
+          blue: 0,
+        })
         break
       case 'Locate':
         handleLocate()
         break
-      case 'Record Cue':
-        handleRecordCue()
+      case 'Highlight':
+        // Toggle highlight mode
+        setActiveFeatureSet(prev => prev === 'highlight' ? 'intensity' : 'highlight')
+        break
+
+      // Selection Commands
+      case 'Select First Fixture':
+        if (fixtures.length > 0) {
+          toggleFixtureSelection(fixtures[0].id)
+        }
         break
       case 'Previous Fixture':
         if (fixtures.length > 0 && selected.size > 0) {
@@ -699,16 +779,16 @@ function App() {
       case 'Select All':
         setSelectedFixtures(new Set(fixtures.map(f => f.id)))
         break
-      case 'Clear All':
-        handleClear()
-        setEncoderValues({
-          dimmer: 0,
-          pan: 128,
-          tilt: 128,
-          red: 0,
-          green: 0,
-          blue: 0,
-        })
+
+      // Recording Commands
+      case 'Record Cue':
+        handleRecordCue()
+        break
+      case 'Record Preset':
+        // Record to preset - default to color preset 1
+        if (handleCLICommand) {
+          handleCLICommand('record 3.1')
+        }
         break
       case 'Toggle Record':
         if (recordModeRef.current) {
@@ -717,6 +797,150 @@ function App() {
           enterRecordMode()
         }
         break
+      case 'Update':
+        // Update current preset/cue
+        if (handleCLICommand) {
+          handleCLICommand('update')
+        }
+        break
+
+      // Feature Set Commands
+      case 'Intensity':
+        setActiveFeatureSet('intensity')
+        break
+      case 'Position':
+        setActiveFeatureSet('position')
+        break
+      case 'Color':
+        setActiveFeatureSet('color')
+        break
+      case 'Focus':
+        setActiveFeatureSet('focus')
+        break
+      case 'Gobo':
+        setActiveFeatureSet('gobo')
+        break
+      case 'Beam':
+        setActiveFeatureSet('beam')
+        break
+
+      // Preset Commands
+      case 'At Full':
+        if (handleCLICommand) {
+          handleCLICommand('at 255')
+        }
+        break
+      case 'At 50':
+        if (handleCLICommand) {
+          handleCLICommand('at 128')
+        }
+        break
+      case 'At 0':
+        if (handleCLICommand) {
+          handleCLICommand('at 0')
+        }
+        break
+
+      // Fan Commands
+      case 'Fan Left':
+        if (handleCLICommand) {
+          handleCLICommand('fan left')
+        }
+        break
+      case 'Fan Right':
+        if (handleCLICommand) {
+          handleCLICommand('fan right')
+        }
+        break
+      case 'Fan Center':
+        if (handleCLICommand) {
+          handleCLICommand('fan center')
+        }
+        break
+
+      // Cue Commands
+      case 'Go Cue 1':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 1')
+        }
+        break
+      case 'Go Cue 2':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 2')
+        }
+        break
+      case 'Go Cue 3':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 3')
+        }
+        break
+      case 'Go Cue 4':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 4')
+        }
+        break
+      case 'Go Cue 5':
+        if (handleCLICommand) {
+          handleCLICommand('go cue 5')
+        }
+        break
+
+      // Executor Commands
+      case 'Go Exec 1':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 1')
+        }
+        break
+      case 'Go Exec 2':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 2')
+        }
+        break
+      case 'Go Exec 3':
+        if (handleCLICommand) {
+          handleCLICommand('go exec 3')
+        }
+        break
+
+      // Time Commands
+      case 'Time 0':
+        setProgramTime(0)
+        break
+      case 'Time 1':
+        setProgramTime(1)
+        break
+      case 'Time 3':
+        setProgramTime(3)
+        break
+      case 'Time 5':
+        setProgramTime(5)
+        break
+
+      // Group Commands
+      case 'Group 1':
+        if (handleCLICommand) {
+          handleCLICommand('group 1')
+        }
+        break
+      case 'Group 2':
+        if (handleCLICommand) {
+          handleCLICommand('group 2')
+        }
+        break
+      case 'Group 3':
+        if (handleCLICommand) {
+          handleCLICommand('group 3')
+        }
+        break
+
+      // View Commands
+      case 'Toggle Edit Mode':
+        setGridEditMode(prev => !prev)
+        break
+      case 'Toggle Keyboard':
+        setShowKeyboard(prev => !prev)
+        break
+
       case 'None':
         // Do nothing
         break
@@ -1686,17 +1910,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1710,17 +1926,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1734,17 +1942,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1758,17 +1958,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -1789,17 +1981,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1813,17 +1997,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1837,17 +2013,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1861,17 +2029,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1885,17 +2045,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -1909,17 +2061,9 @@ function App() {
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
                       >
-                        <option>None</option>
-                        <option>Select First Fixture</option>
-                        <option>Previous Fixture</option>
-                        <option>Next Fixture</option>
-                        <option>Select All</option>
-                        <option>Clear Selection</option>
-                        <option>Blackout</option>
-                        <option>Locate</option>
-                        <option>Clear All</option>
-                        <option>Record Cue</option>
-                        <option>Toggle Record</option>
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
