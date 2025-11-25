@@ -114,11 +114,15 @@
 
 .modal-tabs {
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 2px solid #333;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .modal-tab {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 120px;
   padding: 15px;
   background: #222;
   border: none;
@@ -127,6 +131,7 @@
   transition: all 0.2s;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .modal-tab:hover {
