@@ -188,12 +188,17 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const handleCanvasTouchStart = (e) => {
     if (!editMode) return
 
+    // Prevent default to ensure touch events work in gaming mode
+    e.preventDefault()
+
     const touch = e.touches[0]
     setTouchStartPos({ x: touch.clientX, y: touch.clientY, time: Date.now() })
     setLongPressActive(true)
 
     const timer = setTimeout(() => {
       // Long press detected - show context menu
+      if (!canvasRef.current) return
+
       const rect = canvasRef.current.getBoundingClientRect()
       const clickX = touch.clientX - rect.left
       const clickY = touch.clientY - rect.top
@@ -228,11 +233,17 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const handleCanvasTouchMove = (e) => {
     // Cancel long-press if finger moves too much
     if (touchStartPos && longPressTimer) {
+      // Prevent default to ensure touch events work consistently
+      e.preventDefault()
+
       const touch = e.touches[0]
       const deltaX = Math.abs(touch.clientX - touchStartPos.x)
       const deltaY = Math.abs(touch.clientY - touchStartPos.y)
 
-      if (deltaX > 10 || deltaY > 10) {
+      // Adjust threshold for zoom - smaller threshold in gaming mode
+      const moveThreshold = document.documentElement.classList.contains('steam-deck-gaming') ? 8 : 10
+
+      if (deltaX > moveThreshold || deltaY > moveThreshold) {
         clearTimeout(longPressTimer)
         setLongPressTimer(null)
         setLongPressActive(false)
@@ -245,6 +256,7 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     if (!editMode) return
     if (e.target.classList.contains('resize-handle')) return
 
+    // Don't prevent default here to allow scrolling if needed
     const touch = e.touches[0]
     const touchData = {
       x: touch.clientX,
@@ -257,7 +269,8 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
 
     // Set timer for long-press (context menu)
     const timer = setTimeout(() => {
-      if (touchStartPos && !touchStartPos.moved) {
+      const currentTouchPos = touchStartPos
+      if (currentTouchPos && !currentTouchPos.moved) {
         // Long-press detected - show context menu
         setContextMenu({
           x: touch.clientX,
@@ -285,8 +298,11 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const deltaX = Math.abs(touch.clientX - touchStartPos.x)
     const deltaY = Math.abs(touch.clientY - touchStartPos.y)
 
+    // Adjust threshold for zoom - smaller threshold in gaming mode
+    const moveThreshold = document.documentElement.classList.contains('steam-deck-gaming') ? 8 : 10
+
     // If moved more than threshold, cancel long-press and start dragging
-    if (deltaX > 10 || deltaY > 10) {
+    if (deltaX > moveThreshold || deltaY > moveThreshold) {
       if (longPressTimer) {
         clearTimeout(longPressTimer)
         setLongPressTimer(null)
