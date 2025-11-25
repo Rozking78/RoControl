@@ -18,6 +18,7 @@ import { UndoManager, createSnapshot, applySnapshot } from './utils/undoManager'
 
 // New feature imports
 import SteamDeckIntegration from './components/SteamDeckIntegration'
+import SteamDeckSetup from './components/SteamDeckSetup'
 import ProgramTimeControl from './components/ProgramTimeControl'
 import CueExecutorTimeControl from './components/CueExecutorTimeControl'
 import ClocksConfigWindow from './components/ClocksConfigWindow'
@@ -1791,6 +1792,7 @@ function App() {
                 {setupTab === 'artnet' ? 'Network Configuration' :
                  setupTab === 'patch' ? 'Patch Fixtures' :
                  setupTab === 'backup' ? 'Show Backup & Recall' :
+                 setupTab === 'steamdeck' ? 'Steam Deck' :
                  'Gamepad Mapping'}
               </h2>
               <button className="modal-close" onClick={() => setShowSetup(false)}>✕</button>
@@ -1820,6 +1822,12 @@ function App() {
                 onClick={() => setSetupTab('gamepad')}
               >
                 Gamepad
+              </button>
+              <button
+                className={`modal-tab ${setupTab === 'steamdeck' ? 'active' : ''}`}
+                onClick={() => setSetupTab('steamdeck')}
+              >
+                Steam Deck
               </button>
             </div>
 
@@ -1961,6 +1969,8 @@ function App() {
                     ))}
                   </div>
                 </div>
+              ) : setupTab === 'steamdeck' ? (
+                <SteamDeckSetup />
               ) : setupTab === 'gamepad' ? (
                 <div className="setup-section">
                   <h3>Steam Input Configuration</h3>

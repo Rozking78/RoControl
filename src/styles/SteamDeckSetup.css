@@ -1,0 +1,375 @@
+/* Steam Deck Setup Component Styles */
+
+.steamdeck-setup {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.steamdeck-setup h3 {
+  color: #4a9eff;
+  font-size: 24px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 12px;
+}
+
+.steamdeck-setup h4 {
+  color: #00ff88;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.steamdeck-setup h5 {
+  color: #9a4aff;
+  font-size: 14px;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+/* Setup Sections */
+.setup-section {
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Detection Status */
+.detection-status {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.status-row:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-value {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-value.detected {
+  color: #00ff88;
+}
+
+.status-value.not-detected {
+  color: #ff4444;
+}
+
+.mode-badge {
+  background: rgba(74, 158, 255, 0.2);
+  border: 1px solid #4a9eff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a9eff;
+}
+
+.refresh-btn {
+  background: #4a9eff;
+  color: #000;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #6ab9ff;
+}
+
+.refresh-btn:active {
+  transform: scale(0.95);
+}
+
+/* Gamepad Info */
+.gamepad-info {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.info-detail {
+  color: #00ff88;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  margin: 4px 0;
+}
+
+/* Settings */
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.setting-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4a9eff;
+}
+
+.setting-hint {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  margin-left: 28px;
+}
+
+.setting-select {
+  background: #2a2a2a;
+  border: 2px solid #444;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.setting-select:hover {
+  border-color: #4a9eff;
+}
+
+.setting-select:focus {
+  outline: none;
+  border-color: #4a9eff;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+}
+
+.setting-slider {
+  flex: 1;
+  margin-right: 12px;
+  accent-color: #4a9eff;
+}
+
+.setting-value {
+  color: #00ff88;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Scaling Info */
+.scaling-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.info-badge {
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid #4a9eff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #4a9eff;
+}
+
+.info-badge.info-desktop {
+  border-color: #9a4aff;
+  color: #9a4aff;
+  background: rgba(154, 74, 255, 0.1);
+}
+
+.info-badge.info-gaming {
+  border-color: #00ff88;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+}
+
+/* Button Mapping Preview */
+.button-mapping-preview {
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.button-mapping-preview ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 16px 0;
+}
+
+.button-mapping-preview li {
+  color: #aaa;
+  font-size: 13px;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.button-mapping-preview strong {
+  color: #4a9eff;
+  font-weight: 600;
+  min-width: 100px;
+}
+
+/* Actions */
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.btn-reset,
+.btn-test {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reset {
+  background: #ff4444;
+  color: #fff;
+}
+
+.btn-reset:hover {
+  background: #ff6666;
+}
+
+.btn-test {
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-test:hover {
+  background: #33ffaa;
+}
+
+.btn-reset:active,
+.btn-test:active {
+  transform: scale(0.95);
+}
+
+/* Info Panel */
+.info-panel {
+  background: rgba(0, 255, 136, 0.1);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.info-panel h5 {
+  color: #00ff88;
+  font-size: 16px;
+  margin: 0 0 8px 0;
+}
+
+.info-panel p {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.info-panel.info-warning {
+  background: rgba(255, 187, 0, 0.1);
+  border-color: #ffbb00;
+}
+
+.info-panel.info-warning h5 {
+  color: #ffbb00;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .steamdeck-setup {
+    padding: 12px;
+  }
+
+  .setup-section {
+    padding: 16px;
+  }
+
+  .status-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .refresh-btn {
+    align-self: flex-start;
+  }
+
+  .setup-actions {
+    flex-direction: column;
+  }
+}
+
+/* Steam Deck Gaming Mode Optimizations */
+html.steam-deck-gaming .steamdeck-setup {
+  font-size: 16px;
+}
+
+html.steam-deck-gaming .setting-label,
+html.steam-deck-gaming .status-label {
+  font-size: 16px;
+}
+
+html.steam-deck-gaming .refresh-btn,
+html.steam-deck-gaming .btn-reset,
+html.steam-deck-gaming .btn-test {
+  padding: 14px 20px;
+  font-size: 16px;
+  min-height: 50px;
+  touch-action: manipulation;
+}
+
+html.steam-deck-gaming .setting-label input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+}
