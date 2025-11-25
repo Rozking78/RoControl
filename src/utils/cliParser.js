@@ -21,6 +21,7 @@
  * Conditionals: IF, AND, OR, NOT, EMPTY, ACTIVE, RUNNING, PROGRAMMER
  * Video/NDI: VIDEO, PLAY, PAUSE, RESUME, NDI, DISCOVER, SOURCE
  * Recording: RECORD, UPDATE
+ * History: UNDO/U, REDO/R
  * Operators: =, ==, >, <, >=, <=, !=, <>
  * Actions: GO, AT, FULL, THRU/THROUGH
  */
@@ -48,7 +49,9 @@ export class CLIParser {
       'c': 'clear',
       'loc': 'locate',
       '==': '=',
-      '<>': '!='
+      '<>': '!=',
+      'u': 'undo',
+      'r': 'redo'
     }
   }
 
@@ -89,6 +92,14 @@ export class CLIParser {
 
     if (normalized === 'locate') {
       return { type: 'locate', raw: input }
+    }
+
+    if (normalized === 'undo') {
+      return { type: 'undo', raw: input }
+    }
+
+    if (normalized === 'redo') {
+      return { type: 'redo', raw: input }
     }
 
     if (normalized.startsWith('help')) {

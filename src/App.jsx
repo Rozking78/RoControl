@@ -14,6 +14,7 @@ import VideoPlaybackManager from './utils/videoPlaybackManager'
 import { ArtNetConfig } from './utils/artnet'
 import { SACNConfig } from './utils/sacn'
 import ProtocolSettings from './components/views/ProtocolSettings'
+import { UndoManager, createSnapshot, applySnapshot } from './utils/undoManager'
 
 // New feature imports
 import SteamDeckIntegration from './components/SteamDeckIntegration'
@@ -95,6 +96,7 @@ function App() {
     return saved ? JSON.parse(saved) : []
   })
   const [isRecording, setIsRecording] = useState(false)
+  const [highlightActive, setHighlightActive] = useState(false)
 
   // New feature states for FlexWindow, Programmer Pro, etc.
   const [activeFeatureSet, setActiveFeatureSet] = useState('color')
@@ -131,6 +133,7 @@ function App() {
   // New feature managers
   const [clocksManager] = useState(() => new ClocksManager())
   const [groupHandleManager] = useState(() => new GroupHandleManager())
+  const [undoManager] = useState(() => new UndoManager(50))
 
   // New feature states
   const [programTime, setProgramTime] = useState(0)
@@ -160,6 +163,8 @@ function App() {
     'Clear All',
     'Locate',
     'Highlight',
+    'Undo',
+    'Redo',
     // Selection Commands
     'Select First Fixture',
     'Previous Fixture',
@@ -504,6 +509,53 @@ function App() {
     })
   }
 
+  // Undo/Redo handlers
+  const saveStateSnapshot = (description) => {
+    const snapshot = createSnapshot(description, {
+      selectedFixtures,
+      encoderValues,
+      activeFeatureSet,
+      recordedCues,
+      isBlackout,
+      programTime,
+      masterFaderValue,
+      highlightActive
+    })
+    undoManager.pushState(snapshot)
+  }
+
+  const handleUndo = () => {
+    const prevState = undoManager.undo()
+    if (prevState) {
+      applySnapshot(prevState, {
+        setSelectedFixtures,
+        setEncoderValues,
+        setActiveFeatureSet,
+        setRecordedCues,
+        setIsBlackout,
+        setProgramTime,
+        setMasterFaderValue,
+        setHighlightActive
+      })
+    }
+  }
+
+  const handleRedo = () => {
+    const nextState = undoManager.redo()
+    if (nextState) {
+      applySnapshot(nextState, {
+        setSelectedFixtures,
+        setEncoderValues,
+        setActiveFeatureSet,
+        setRecordedCues,
+        setIsBlackout,
+        setProgramTime,
+        setMasterFaderValue,
+        setHighlightActive
+      })
+    }
+  }
+
   const applyColorPalette = (color) => {
     // Find and set RGB channels if they exist
     const findAndSetChannel = (name, value) => {
@@ -746,6 +798,12 @@ function App() {
         break
       case 'Locate':
         handleLocate()
+        break
+      case 'Undo':
+        handleUndo()
+        break
+      case 'Redo':
+        handleRedo()
         break
       case 'Highlight':
         // Toggle highlight mode
@@ -1519,7 +1577,10 @@ function App() {
       videoRestart: handleVideoRestart,
       videoLoop: handleVideoLoop,
       videoSpeed: handleVideoSpeed,
-      videoRoute: handleVideoRoute
+      videoRoute: handleVideoRoute,
+      handleUndo,
+      handleRedo,
+      undoManager
     }
 
     const dispatcher = new CLIDispatcher(appState, appActions)

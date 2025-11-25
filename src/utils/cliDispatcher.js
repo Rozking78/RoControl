@@ -30,6 +30,12 @@ export class CLIDispatcher {
         case 'locate':
           return this.handleLocate()
 
+        case 'undo':
+          return this.handleUndo()
+
+        case 'redo':
+          return this.handleRedo()
+
         case 'help':
           return this.handleHelp()
 
@@ -158,6 +164,34 @@ export class CLIDispatcher {
     return { success: false, message: 'Locate action not available' }
   }
 
+  handleUndo() {
+    const { handleUndo, undoManager } = this.appActions
+    if (handleUndo && undoManager) {
+      if (undoManager.canUndo()) {
+        const description = undoManager.getUndoDescription()
+        handleUndo()
+        return { success: true, message: `Undo: ${description || 'Previous action'}` }
+      } else {
+        return { success: false, message: 'Nothing to undo' }
+      }
+    }
+    return { success: false, message: 'Undo not available' }
+  }
+
+  handleRedo() {
+    const { handleRedo, undoManager } = this.appActions
+    if (handleRedo && undoManager) {
+      if (undoManager.canRedo()) {
+        const description = undoManager.getRedoDescription()
+        handleRedo()
+        return { success: true, message: `Redo: ${description || 'Next action'}` }
+      } else {
+        return { success: false, message: 'Nothing to redo' }
+      }
+    }
+    return { success: false, message: 'Redo not available' }
+  }
+
   handleHelp() {
     const helpText = `
 CLI Commands:
@@ -169,6 +203,8 @@ CLI Commands:
 - clear | c - Clear programmer
 - blackout | bo - Trigger blackout
 - locate | loc - Locate selected fixtures
+- undo | u - Undo last action
+- redo | r - Redo last undone action
 - time [seconds] - Set fade time (e.g., time 5, time 0 for snap)
 - fan [mode] [axis] - Set fan mode and axis (default: center x)
   Modes: center, left, right, outside | Axes: x (default), y
