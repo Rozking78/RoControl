@@ -74,6 +74,8 @@ function App() {
       buttonR3: 'None',
       buttonL4: 'None',
       buttonR4: 'None',
+      buttonL5: 'None',
+      buttonR5: 'None',
       dpadUp: 'Increment',
       dpadDown: 'Decrement',
       dpadLeft: 'Previous Channel',
@@ -1234,6 +1236,24 @@ function App() {
             }
           }
 
+          // L5 button (additional grip button - button 18)
+          if (gamepad.buttons[18] && gamepad.buttons[18].pressed) {
+            if (now - lastButtonPress.time > buttonDebounceTime || lastButtonPress.button !== 18) {
+              lastButtonPress.time = now
+              lastButtonPress.button = 18
+              executeGamepadAction(gamepadMappingsRef.current.buttonL5)
+            }
+          }
+
+          // R5 button (additional grip button - button 19)
+          if (gamepad.buttons[19] && gamepad.buttons[19].pressed) {
+            if (now - lastButtonPress.time > buttonDebounceTime || lastButtonPress.button !== 19) {
+              lastButtonPress.time = now
+              lastButtonPress.button = 19
+              executeGamepadAction(gamepadMappingsRef.current.buttonR5)
+            }
+          }
+
           // Right Joystick (Axes 2 and 3)
           const rightStickXChannel = findChannel(gamepadMappingsRef.current.rightStickX)
           const rightStickYChannel = findChannel(gamepadMappingsRef.current.rightStickY)
@@ -2057,6 +2077,38 @@ function App() {
                         value={gamepadMappings.buttonR4 || 'None'}
                         onChange={(e) => {
                           const newMappings = {...gamepadMappings, buttonR4: e.target.value}
+                          setGamepadMappings(newMappings)
+                          localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
+                        }}
+                      >
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>L5 (Left Grip 2):</label>
+                      <select
+                        value={gamepadMappings.buttonL5 || 'None'}
+                        onChange={(e) => {
+                          const newMappings = {...gamepadMappings, buttonL5: e.target.value}
+                          setGamepadMappings(newMappings)
+                          localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
+                        }}
+                      >
+                        {GAMEPAD_COMMAND_OPTIONS.map(cmd => (
+                          <option key={cmd}>{cmd}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>R5 (Right Grip 2):</label>
+                      <select
+                        value={gamepadMappings.buttonR5 || 'None'}
+                        onChange={(e) => {
+                          const newMappings = {...gamepadMappings, buttonR5: e.target.value}
                           setGamepadMappings(newMappings)
                           localStorage.setItem('dmx_gamepad_mappings', JSON.stringify(newMappings))
                         }}
