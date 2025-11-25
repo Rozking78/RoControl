@@ -70,8 +70,11 @@ jobs:
     - name: Install Node dependencies
       run: npm install
 
+    - name: Build frontend
+      run: npm run build
+
     - name: Build Tauri app
-      run: npm run tauri build
+      run: npm run tauri build -- --verbose
 
     - name: List build artifacts
       run: |
