@@ -6,8 +6,8 @@
 .fixture-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 52px);
-  gap: 4px;
-  padding: 4px;
+  gap: 0px;
+  padding: 0px;
   justify-content: start;
 }
 

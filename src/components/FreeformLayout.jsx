@@ -20,7 +20,6 @@ import ProgrammerViewEnhanced from './views/ProgrammerViewEnhanced'
 import AttributeCallButtons from './AttributeCallButtons'
 import ViewButtons from './ViewButtons'
 import PixelGridWindow from './views/PixelGridWindow'
-import ProtocolSettings from './views/ProtocolSettings'
 
 const VIEW_COMPONENTS = {
   fixtures: FixturesView,
@@ -41,7 +40,6 @@ const VIEW_COMPONENTS = {
   attributeButtons: AttributeCallButtons,
   viewButtons: ViewButtons,
   pixelGrid: PixelGridWindow,
-  protocolSettings: ProtocolSettings,
 }
 
 const VIEW_LABELS = {
@@ -63,7 +61,6 @@ const VIEW_LABELS = {
   attributeButtons: 'Attributes',
   viewButtons: 'View Recall',
   pixelGrid: 'Pixel Grid',
-  protocolSettings: 'Protocol Settings',
 }
 
 function FreeformLayout({ appState, windows, onWindowsChange }) {

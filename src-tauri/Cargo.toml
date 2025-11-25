@@ -31,6 +31,8 @@ multer = "2.1"  # Multipart form data for file uploads
 dirs = "5.0"  # User directories
 mdns-sd = "0.10"  # mDNS for NDI discovery
 bytes = "1.0"  # Byte utilities for NDI streams
+hidapi = "2.4"  # USB HID for Elgato Stream Deck
+image = "0.24"  # Image processing for Stream Deck button icons
 
 [features]
 default = ["custom-protocol"]

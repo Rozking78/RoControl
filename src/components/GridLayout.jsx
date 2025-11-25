@@ -20,7 +20,6 @@ import ProgrammerViewEnhanced from './views/ProgrammerViewEnhanced'
 import AttributeCallButtons from './AttributeCallButtons'
 import ViewButtons from './ViewButtons'
 import PixelGridWindow from './views/PixelGridWindow'
-import ProtocolSettings from './views/ProtocolSettings'
 import VideoFixturePatch from './views/VideoFixturePatch'
 import VideoOutputGrid from './views/VideoOutputGrid'
 import ClocksConfigWindow from './ClocksConfigWindow'
@@ -51,7 +50,6 @@ const VIEW_COMPONENTS = {
   attributeButtons: AttributeCallButtons,
   viewButtons: ViewButtons,
   pixelGrid: PixelGridWindow,
-  protocolSettings: ProtocolSettings,
   videoFixturePatch: VideoFixturePatch,
   videoOutputGrid: VideoOutputGrid,
   clocksConfig: ClocksConfigWindow,
@@ -82,7 +80,6 @@ const VIEW_LABELS = {
   attributeButtons: 'Attributes',
   viewButtons: 'View Recall',
   pixelGrid: 'Pixel Grid',
-  protocolSettings: 'Protocol Settings',
   videoFixturePatch: 'Video Patch',
   videoOutputGrid: 'Video Outputs',
   clocksConfig: 'Clocks Configuration',
@@ -119,7 +116,9 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const [contextMenu, setContextMenu] = useState(null)
   const [draggedWindow, setDraggedWindow] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [dragTempPosition, setDragTempPosition] = useState(null) // Temporary position while dragging - prevents vibration
   const [resizingWindow, setResizingWindow] = useState(null)
+  const [resizeTempSize, setResizeTempSize] = useState(null) // Temporary size while resizing - prevents vibration
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [touchStartPos, setTouchStartPos] = useState(null)
   const [longPressActive, setLongPressActive] = useState(false)
@@ -191,12 +190,17 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const handleCanvasTouchStart = (e) => {
     if (!editMode) return
 
+    // Prevent default to ensure touch events work in gaming mode
+    e.preventDefault()
+
     const touch = e.touches[0]
     setTouchStartPos({ x: touch.clientX, y: touch.clientY, time: Date.now() })
     setLongPressActive(true)
 
     const timer = setTimeout(() => {
       // Long press detected - show context menu
+      if (!canvasRef.current) return
+
       const rect = canvasRef.current.getBoundingClientRect()
       const clickX = touch.clientX - rect.left
       const clickY = touch.clientY - rect.top
@@ -231,11 +235,17 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const handleCanvasTouchMove = (e) => {
     // Cancel long-press if finger moves too much
     if (touchStartPos && longPressTimer) {
+      // Prevent default to ensure touch events work consistently
+      e.preventDefault()
+
       const touch = e.touches[0]
       const deltaX = Math.abs(touch.clientX - touchStartPos.x)
       const deltaY = Math.abs(touch.clientY - touchStartPos.y)
 
-      if (deltaX > 10 || deltaY > 10) {
+      // Adjust threshold for zoom - smaller threshold in gaming mode
+      const moveThreshold = document.documentElement.classList.contains('steam-deck-gaming') ? 8 : 10
+
+      if (deltaX > moveThreshold || deltaY > moveThreshold) {
         clearTimeout(longPressTimer)
         setLongPressTimer(null)
         setLongPressActive(false)
@@ -248,6 +258,7 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     if (!editMode) return
     if (e.target.classList.contains('resize-handle')) return
 
+    // Don't prevent default here to allow scrolling if needed
     const touch = e.touches[0]
     const touchData = {
       x: touch.clientX,
@@ -260,7 +271,8 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
 
     // Set timer for long-press (context menu)
     const timer = setTimeout(() => {
-      if (touchStartPos && !touchStartPos.moved) {
+      const currentTouchPos = touchStartPos
+      if (currentTouchPos && !currentTouchPos.moved) {
         // Long-press detected - show context menu
         setContextMenu({
           x: touch.clientX,
@@ -288,8 +300,11 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const deltaX = Math.abs(touch.clientX - touchStartPos.x)
     const deltaY = Math.abs(touch.clientY - touchStartPos.y)
 
+    // Adjust threshold for zoom - smaller threshold in gaming mode
+    const moveThreshold = document.documentElement.classList.contains('steam-deck-gaming') ? 8 : 10
+
     // If moved more than threshold, cancel long-press and start dragging
-    if (deltaX > 10 || deltaY > 10) {
+    if (deltaX > moveThreshold || deltaY > moveThreshold) {
       if (longPressTimer) {
         clearTimeout(longPressTimer)
         setLongPressTimer(null)
@@ -385,17 +400,38 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const newX = clientX - rect.left - dragOffset.x
     const newY = clientY - rect.top - dragOffset.y
 
-    const newWindows = [...windows]
-    newWindows[draggedWindow] = {
-      ...newWindows[draggedWindow],
-      x: Math.max(0, Math.min(rect.width - newWindows[draggedWindow].width, newX)),
-      y: Math.max(0, Math.min(rect.height - newWindows[draggedWindow].height, newY))
-    }
+    const window = windows[draggedWindow]
+    const clampedX = Math.max(0, Math.min(rect.width - window.width, newX))
+    const clampedY = Math.max(0, Math.min(rect.height - window.height, newY))
 
-    saveLayout({ ...layout, windows: newWindows })
+    // Update temporary position only - don't save layout until drag completes
+    setDragTempPosition({ x: clampedX, y: clampedY })
   }
 
   const handlePointerUp = () => {
+    // Save final position/size when dragging/resizing completes
+    if (draggedWindow !== null && dragTempPosition) {
+      const newWindows = [...windows]
+      newWindows[draggedWindow] = {
+        ...newWindows[draggedWindow],
+        x: dragTempPosition.x,
+        y: dragTempPosition.y
+      }
+      saveLayout({ ...layout, windows: newWindows })
+      setDragTempPosition(null)
+    }
+
+    if (resizingWindow !== null && resizeTempSize) {
+      const newWindows = [...windows]
+      newWindows[resizingWindow] = {
+        ...newWindows[resizingWindow],
+        width: resizeTempSize.width,
+        height: resizeTempSize.height
+      }
+      saveLayout({ ...layout, windows: newWindows })
+      setResizeTempSize(null)
+    }
+
     setDraggedWindow(null)
     setResizingWindow(null)
   }
@@ -454,24 +490,24 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const deltaX = clientX - resizingWindow.startX
     const deltaY = clientY - resizingWindow.startY
 
-    const newWindows = [...windows]
-    const win = { ...newWindows[resizingWindow.index] }
+    let newWidth = resizingWindow.startWidth
+    let newHeight = resizingWindow.startHeight
 
     switch (resizingWindow.edge) {
       case 'right':
-        win.width = Math.max(200, resizingWindow.startWidth + deltaX)
+        newWidth = Math.max(200, resizingWindow.startWidth + deltaX)
         break
       case 'bottom':
-        win.height = Math.max(150, resizingWindow.startHeight + deltaY)
+        newHeight = Math.max(150, resizingWindow.startHeight + deltaY)
         break
       case 'corner':
-        win.width = Math.max(200, resizingWindow.startWidth + deltaX)
-        win.height = Math.max(150, resizingWindow.startHeight + deltaY)
+        newWidth = Math.max(200, resizingWindow.startWidth + deltaX)
+        newHeight = Math.max(150, resizingWindow.startHeight + deltaY)
         break
     }
 
-    newWindows[resizingWindow.index] = win
-    saveLayout({ ...layout, windows: newWindows })
+    // Update temporary size only - don't save layout until resize completes
+    setResizeTempSize({ width: newWidth, height: newHeight })
   }
 
   // Render freeform windows
@@ -479,12 +515,20 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     return windows.map((win, index) => {
       const ViewComponent = VIEW_COMPONENTS[win.view] || VIEW_COMPONENTS.empty
 
+      // Use temporary position/size while dragging/resizing to prevent vibration
+      const isDragging = draggedWindow === index
+      const isResizing = resizingWindow === index
+      const x = isDragging && dragTempPosition ? dragTempPosition.x : win.x
+      const y = isDragging && dragTempPosition ? dragTempPosition.y : win.y
+      const width = isResizing && resizeTempSize ? resizeTempSize.width : win.width
+      const height = isResizing && resizeTempSize ? resizeTempSize.height : win.height
+
       const windowStyle = {
         position: 'absolute',
-        left: `${win.x}px`,
-        top: `${win.y}px`,
-        width: `${win.width}px`,
-        height: `${win.height}px`,
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
         display: 'flex',
         flexDirection: 'column',
         background: '#1a1a1a',
