@@ -52,7 +52,7 @@
       },
       "resources": [],
       "shortDescription": "RoControl DMX Lighting Controller",
-      "targets": ["deb", "rpm"],
+      "targets": ["deb", "appimage"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",

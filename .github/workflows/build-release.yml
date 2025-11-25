@@ -1,0 +1,122 @@
+name: Build and Release RoControl
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-22.04]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install system dependencies (Ubuntu)
+      if: matrix.platform == 'ubuntu-22.04'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libwebkit2gtk-4.0-dev \
+          libgtk-3-dev \
+          libayatana-appindicator3-dev \
+          librsvg2-dev \
+          libsoup2.4-dev \
+          libjavascriptcoregtk-4.0-dev \
+          libssl-dev \
+          libglib2.0-dev \
+          libcairo2-dev \
+          libpango1.0-dev \
+          libgdk-pixbuf2.0-dev \
+          libatk1.0-dev \
+          libudev-dev \
+          libhidapi-dev \
+          pkg-config \
+          build-essential \
+          curl \
+          wget \
+          file
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Rust cache
+      uses: swatinem/rust-cache@v2
+      with:
+        workspaces: './src-tauri -> target'
+
+    - name: Install Node dependencies
+      run: npm install
+
+    - name: Build Tauri app
+      run: npm run tauri build
+
+    - name: List build artifacts
+      run: |
+        echo "=== Debian Package ==="
+        ls -lh src-tauri/target/release/bundle/deb/ || echo "No .deb found"
+        echo "=== AppImage ==="
+        ls -lh src-tauri/target/release/bundle/appimage/ || echo "No AppImage found"
+        echo "=== Binary ==="
+        ls -lh src-tauri/target/release/rocontrol || echo "No binary found"
+
+    - name: Upload Linux artifacts
+      if: matrix.platform == 'ubuntu-22.04'
+      uses: actions/upload-artifact@v4
+      with:
+        name: rocontrol-linux-x86_64
+        path: |
+          src-tauri/target/release/bundle/deb/*.deb
+          src-tauri/target/release/bundle/appimage/*.AppImage
+          src-tauri/target/release/rocontrol
+        if-no-files-found: warn
+
+  create-release:
+    needs: build-tauri
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Display structure of downloaded files
+      run: ls -R artifacts
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          artifacts/**/*.deb
+          artifacts/**/*.AppImage
+          artifacts/**/rocontrol
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

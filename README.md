@@ -2,7 +2,28 @@
 
 A professional-grade DMX lighting control system built for Steam Deck, featuring an MA3/Hog-style CLI interface and web remote control.
 
-## 🚀 Quick Start
+## 📦 Pre-Built Downloads (Recommended for Steam Deck)
+
+**Don't want to build from source?** Download ready-to-run releases:
+
+👉 **[Download Latest Release](https://github.com/Rozking78/RoControl/releases/latest)**
+
+### For Steam Deck Users:
+- **AppImage** (recommended) - No installation needed, just download and run
+- **Debian Package** (.deb) - System integration, but requires disabling read-only mode
+
+📖 **[Steam Deck Installation Guide](INSTALL-STEAMDECK.md)** - Complete setup instructions
+
+### Why Pre-Built?
+- ✅ No need to install build tools on Steam Deck
+- ✅ Avoid library conflicts with SteamOS
+- ✅ Built in GitHub's cloud with all dependencies
+- ✅ Automatic updates via releases
+- ✅ Just download and run!
+
+---
+
+## 🚀 Quick Start (Building from Source)
 
 ### Step 1: Install Dependencies
 
@@ -66,6 +87,22 @@ Open on any device: `http://[your-steam-deck-ip]:8080`
 - Multiple operation modes (Navigate, Cue, Executor, Command)
 - Real-time HUD with mode indicators
 - Web remote Steam Deck control API
+
+### Elgato Stream Deck Support (NEW! 🎛️)
+- **Native USB HID communication** - Direct hardware control
+- **Multi-device support** - Connect multiple Stream Decks
+- **All models supported:**
+  - Stream Deck Original (15 buttons, 3×5)
+  - Stream Deck Mini (6 buttons, 2×3)
+  - Stream Deck XL (32 buttons, 4×8)
+  - Stream Deck V2/MK.2 (15 buttons)
+  - Stream Deck Plus (8 buttons + dials)
+  - Stream Deck Pedal (3 pedals)
+- **Button assignment** - Map buttons to windows or commands
+- **Brightness control** - Adjust LCD brightness (0-100%)
+- **Persistent configuration** - Settings saved per device
+- **Real-time detection** - Plug and play USB support
+- **Button LCD framework** - Ready for custom icons (coming soon)
 
 ### Video Fixtures & NDI Support (NEW!)
 - Video file patching
