@@ -292,3 +292,4 @@ See **NEW_FEATURES_SUMMARY.md** for complete details!
 **Platform:** Steam Deck, Linux
 
 Access your lighting console from anywhere with the web remote at `http://[your-ip]:8080`
+
