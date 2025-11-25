@@ -3,8 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>RoControl</title>
+    <script>
+      // Detect and compensate for Steam Deck display scaling differences
+      (function() {
+        const isSteamDeck = window.innerWidth === 1280 && window.innerHeight === 800;
+        const dpr = window.devicePixelRatio || 1;
+
+        if (isSteamDeck) {
+          // Desktop mode typically has DPR > 1, gaming mode has DPR = 1
+          const isDesktopMode = dpr > 1.25;
+          const isGamingMode = dpr <= 1.25;
+
+          // Apply scaling class to html element
+          if (isDesktopMode) {
+            document.documentElement.classList.add('steam-deck-desktop');
+          } else if (isGamingMode) {
+            document.documentElement.classList.add('steam-deck-gaming');
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
