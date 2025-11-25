@@ -1,6 +1,6 @@
 [package]
 name = "rocontrol"
-version = "0.1.0"
+version = "0.3.0"
 description = "RoControl - Professional DMX Lighting Controller for Steam Deck"
 authors = ["RoControl Team"]
 license = ""
@@ -8,30 +8,49 @@ repository = ""
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "1.5.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = ["dialog-all", "fs-all", "protocol-asset"] }
+# Tauri framework - pinned to specific version for stability
+tauri = { version = "1.5.4", features = ["dialog-all", "fs-all", "protocol-asset"] }
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tokio = { version = "1", features = ["full"] }
+
+# Async runtime - compatible with axum 0.6
+tokio = { version = "1.35", features = ["full"] }
+
+# DMX Protocols
 artnet_protocol = "0.4"
 sacn = "0.10"
+
+# File handling
 zip = "0.6"
 xml-rs = "0.8"
+
+# Error handling
 thiserror = "1.0"
+
+# Input devices
 gilrs = "0.10"  # Gamepad input for Steam Deck controls
+hidapi = "2.4"  # USB HID for Elgato Stream Deck
+
+# Network
 if-addrs = "0.10"  # Network interface enumeration
-axum = "0.6"  # Web framework for HTTP server
-tower = "0.4"  # Service abstractions
-tower-http = { version = "0.4", features = ["fs", "cors"] }  # HTTP utilities
+mdns-sd = "0.10"  # mDNS for NDI discovery
+
+# Web server - pinned versions for compatibility
+axum = "0.6.20"  # Web framework for HTTP server
+tower = "0.4.13"  # Service abstractions
+tower-http = { version = "0.4.4", features = ["fs", "cors"] }  # HTTP utilities
 tokio-tungstenite = "0.20"  # WebSocket support
+
+# Utilities
 futures = "0.3"  # Async utilities
 multer = "2.1"  # Multipart form data for file uploads
 dirs = "5.0"  # User directories
-mdns-sd = "0.10"  # mDNS for NDI discovery
-bytes = "1.0"  # Byte utilities for NDI streams
-hidapi = "2.4"  # USB HID for Elgato Stream Deck
+bytes = "1.5"  # Byte utilities for NDI streams
 image = "0.24"  # Image processing for Stream Deck button icons
 
 [features]
