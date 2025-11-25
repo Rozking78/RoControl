@@ -20,7 +20,6 @@ import ProgrammerViewEnhanced from './views/ProgrammerViewEnhanced'
 import AttributeCallButtons from './AttributeCallButtons'
 import ViewButtons from './ViewButtons'
 import PixelGridWindow from './views/PixelGridWindow'
-import ProtocolSettings from './views/ProtocolSettings'
 import VideoFixturePatch from './views/VideoFixturePatch'
 import VideoOutputGrid from './views/VideoOutputGrid'
 import ClocksConfigWindow from './ClocksConfigWindow'
@@ -51,7 +50,6 @@ const VIEW_COMPONENTS = {
   attributeButtons: AttributeCallButtons,
   viewButtons: ViewButtons,
   pixelGrid: PixelGridWindow,
-  protocolSettings: ProtocolSettings,
   videoFixturePatch: VideoFixturePatch,
   videoOutputGrid: VideoOutputGrid,
   clocksConfig: ClocksConfigWindow,
@@ -82,7 +80,6 @@ const VIEW_LABELS = {
   attributeButtons: 'Attributes',
   viewButtons: 'View Recall',
   pixelGrid: 'Pixel Grid',
-  protocolSettings: 'Protocol Settings',
   videoFixturePatch: 'Video Patch',
   videoOutputGrid: 'Video Outputs',
   clocksConfig: 'Clocks Configuration',

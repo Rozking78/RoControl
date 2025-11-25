@@ -11,8 +11,9 @@ import { initializeAutoKeyboard } from './utils/autoKeyboard'
 import { getDMXOutputManager } from './utils/dmxOutputManager'
 import { CLIDispatcher } from './utils/cliDispatcher'
 import VideoPlaybackManager from './utils/videoPlaybackManager'
-// import { ArtNetConfig } from './utils/artnet'
-// import { SACNConfig } from './utils/sacn'
+import { ArtNetConfig } from './utils/artnet'
+import { SACNConfig } from './utils/sacn'
+import ProtocolSettings from './components/views/ProtocolSettings'
 
 // New feature imports
 import SteamDeckIntegration from './components/SteamDeckIntegration'
@@ -35,8 +36,14 @@ function App() {
     blue: 0,
   })
   const [faderValues, setFaderValues] = useState(Array(6).fill(0))
-  const [artnetConfig, setArtnetConfig] = useState('2.255.255.255')
-  const [sacnConfig, setSacnConfig] = useState(null)
+  const [artnetConfig, setArtnetConfig] = useState(() => {
+    const saved = localStorage.getItem('dmx_artnet_config')
+    return saved ? ArtNetConfig.fromJSON(JSON.parse(saved)) : new ArtNetConfig()
+  })
+  const [sacnConfig, setSacnConfig] = useState(() => {
+    const saved = localStorage.getItem('dmx_sacn_config')
+    return saved ? SACNConfig.fromJSON(JSON.parse(saved)) : new SACNConfig()
+  })
   const [dmxProtocol, setDmxProtocol] = useState('artnet')
   const [isBlackout, setIsBlackout] = useState(false)
   const [networkInterfaces, setNetworkInterfaces] = useState([])
@@ -198,6 +205,19 @@ function App() {
   useEffect(() => { gamepadMappingsRef.current = gamepadMappings }, [gamepadMappings])
   useEffect(() => { incrementSpeedRef.current = incrementSpeed }, [incrementSpeed])
   useEffect(() => { recordModeRef.current = recordMode }, [recordMode])
+
+  // Save protocol configs to localStorage
+  useEffect(() => {
+    if (artnetConfig) {
+      localStorage.setItem('dmx_artnet_config', JSON.stringify(artnetConfig.toJSON()))
+    }
+  }, [artnetConfig])
+
+  useEffect(() => {
+    if (sacnConfig) {
+      localStorage.setItem('dmx_sacn_config', JSON.stringify(sacnConfig.toJSON()))
+    }
+  }, [sacnConfig])
 
   // Protocol configs removed temporarily due to crash
 
@@ -1500,70 +1520,12 @@ function App() {
 
             <div className="modal-body">
               {setupTab === 'artnet' ? (
-                <div className="setup-section">
-                  <h3>Network Configuration</h3>
-                  <div className="form-group">
-                    <label>DMX Protocol:</label>
-                    <select
-                      value={dmxProtocol}
-                      onChange={(e) => setDmxProtocol(e.target.value)}
-                    >
-                      <option value="artnet">Art-Net</option>
-                      <option value="sacn">sACN (E1.31)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Broadcast Address:</label>
-                    <input
-                      type="text"
-                      value={artnetConfig}
-                      onChange={(e) => setArtnetConfig(e.target.value)}
-                      placeholder="2.255.255.255"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Network Interface:</label>
-                    <select
-                      value={selectedInterface}
-                      onChange={(e) => setSelectedInterface(e.target.value)}
-                    >
-                      <option value="all">All Interfaces (0.0.0.0)</option>
-                      {networkInterfaces.map((iface) => (
-                        <option key={iface.ip} value={iface.ip}>
-                          {iface.name} - {iface.ip}
-                          {iface.is_loopback ? ' (loopback)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-help">
-                    <p><strong>Network Interface:</strong></p>
-                    <ul>
-                      <li><strong>All Interfaces (0.0.0.0)</strong> - Send DMX on all network interfaces</li>
-                      <li><strong>Specific Interface</strong> - Send DMX only on selected WiFi/Ethernet adapter</li>
-                      <li>Choose the interface connected to your lighting network</li>
-                      <li>Loopback (127.x.x.x) is only for testing</li>
-                    </ul>
-                    <br/>
-                    <p><strong>Art-Net configurations:</strong></p>
-                    <ul>
-                      <li><code>2.255.255.255</code> - Standard Art-Net broadcast</li>
-                      <li><code>10.255.255.255</code> - Class A private network</li>
-                      <li><code>192.168.1.255</code> - Class C private network</li>
-                    </ul>
-                    <p>Port: <code>6454</code> (UDP)</p>
-                    <br/>
-                    <p><strong>sACN (E1.31):</strong></p>
-                    <ul>
-                      <li>Multicast: <code>239.255.0.x</code> (auto-configured)</li>
-                      <li>Unicast: Use specific device IP</li>
-                      <li>Port: <code>5568</code> (UDP)</li>
-                    </ul>
-                  </div>
-                  <button className="btn-primary" onClick={handleArtnetConfig}>
-                    Apply Network Configuration
-                  </button>
-                </div>
+                <ProtocolSettings
+                  artnetConfig={artnetConfig}
+                  sacnConfig={sacnConfig}
+                  setArtnetConfig={setArtnetConfig}
+                  setSacnConfig={setSacnConfig}
+                />
               ) : setupTab === 'patch' ? (
                 <div className="setup-section">
                   <h3>Add New Fixture</h3>
