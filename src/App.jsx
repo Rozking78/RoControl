@@ -1626,7 +1626,7 @@ function App() {
           </button>
         </div>
         <div className="top-bar-right">
-          {gamepadDebug.connected && (
+          {gamepadDebug.connected && !document.documentElement.classList.contains('steam-deck-gaming') && (
             <span style={{ fontSize: '11px', color: '#00ff88', marginRight: '10px' }}>
               🎮 Gamepad OK
             </span>
@@ -1652,8 +1652,8 @@ function App() {
         />
       </div>
 
-      {/* Gamepad Debug Display */}
-      {showGamepadDebug && (
+      {/* Gamepad Debug Display - Hidden in gaming mode */}
+      {showGamepadDebug && !document.documentElement.classList.contains('steam-deck-gaming') && (
         <div style={{
           position: 'fixed',
           bottom: '40px',
