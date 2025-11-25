@@ -423,7 +423,8 @@ fn clear_streamdeck_buttons(
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let dmx_engine = Arc::new(Mutex::new(DmxEngine::new("2.255.255.255".to_string())));
     let fixtures = Arc::new(Mutex::new(HashMap::new()));
     let fixture_library = Arc::new(Mutex::new(HashMap::new()));
