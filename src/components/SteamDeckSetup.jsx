@@ -3,7 +3,7 @@ import '../styles/SteamDeckSetup.css'
 
 /**
  * Steam Deck Setup Component
- * Configuration panel for Steam Deck detection and settings
+ * Configuration panel for Steam Deck detection and easy button assignments
  */
 function SteamDeckSetup() {
   const [steamDeckDetected, setSteamDeckDetected] = useState(false)
@@ -12,20 +12,64 @@ function SteamDeckSetup() {
   const [resolution, setResolution] = useState({ width: 0, height: 0 })
   const [gamepadConnected, setGamepadConnected] = useState(false)
   const [gamepadInfo, setGamepadInfo] = useState(null)
+  const [editingButton, setEditingButton] = useState(null)
+
+  // Available windows for assignment
+  const AVAILABLE_WINDOWS = [
+    { id: 4, name: 'Pixel Grid', icon: '🎨' },
+    { id: 9, name: 'Programmer', icon: '⚙️' },
+    { id: 10, name: 'Color', icon: '🌈' },
+    { id: 11, name: 'Intensity', icon: '💡' },
+    { id: 12, name: 'Position', icon: '📍' },
+    { id: 13, name: 'Focus', icon: '🔍' },
+    { id: 14, name: 'Gobo', icon: '🎭' },
+    { id: 20, name: 'Cues', icon: '📋' },
+    { id: 21, name: 'Executors', icon: '▶️' },
+    { id: 22, name: 'Palettes', icon: '🎨' },
+    { id: 30, name: 'Fixtures', icon: '💡' },
+    { id: 31, name: 'Groups', icon: '👥' },
+    { id: 40, name: 'FlexWindow', icon: '🪟' },
+    { id: 50, name: 'Quick Actions', icon: '⚡' }
+  ]
+
+  // Available commands
+  const AVAILABLE_COMMANDS = [
+    'Blackout', 'Clear', 'Locate', 'Highlight',
+    'Record Cue', 'Update', 'Go Cue', 'Pause',
+    'At Full', 'At 50', 'At 0',
+    'Select All', 'Clear Selection',
+    'Previous Fixture', 'Next Fixture',
+    'Undo', 'Redo'
+  ]
+
+  // Available intensity/parameter controls
+  const AVAILABLE_CONTROLS = [
+    'Intensity', 'Red', 'Green', 'Blue', 'White',
+    'Pan', 'Tilt', 'Focus', 'Zoom', 'Iris'
+  ]
 
   // Steam Deck settings (stored in localStorage)
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('steamdeck_settings')
     return saved ? JSON.parse(saved) : {
       integrationEnabled: true,
-      scalingMode: 'auto', // 'auto', 'desktop', 'gaming', 'custom'
+      scalingMode: 'auto',
       customScale: 1.0,
       touchpadSensitivity: 1.0,
-      buttonMappingProfile: 'default', // 'default', 'custom'
       quickAccessEnabled: true,
       hudEnabled: true,
       vibrationEnabled: true,
-      autoDetect: true
+      autoDetect: true,
+      // Button assignments
+      buttonAssignments: {
+        L4: { type: 'window', value: 9, label: 'Programmer' },
+        L5: { type: 'window', value: 20, label: 'Cues' },
+        R4: { type: 'window', value: 21, label: 'Executors' },
+        R5: { type: 'window', value: 40, label: 'FlexWindow' }
+      },
+      // Touchpad assignments
+      leftTouchpad: { type: 'control', value: 'Pan', axis: 'x' },
+      rightTouchpad: { type: 'control', value: 'Intensity', axis: 'y' }
     }
   })
 
@@ -63,7 +107,6 @@ function SteamDeckSetup() {
     setSteamDeckDetected(isSteamDeck)
 
     if (isSteamDeck) {
-      // Detect mode based on DPR
       const mode = dpr > 1.25 ? 'desktop' : 'gaming'
       setCurrentMode(mode)
     } else {
@@ -92,7 +135,6 @@ function SteamDeckSetup() {
   const applyCustomScaling = () => {
     const html = document.documentElement
 
-    // Remove existing Steam Deck classes
     html.classList.remove('steam-deck-desktop', 'steam-deck-gaming')
 
     switch (settings.scalingMode) {
@@ -103,11 +145,9 @@ function SteamDeckSetup() {
         html.classList.add('steam-deck-gaming')
         break
       case 'custom':
-        // Apply custom zoom
         html.style.zoom = settings.customScale
         break
       default:
-        // Auto - let the detection script handle it
         detectSteamDeck()
     }
   }
@@ -116,17 +156,42 @@ function SteamDeckSetup() {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
+  const handleButtonAssignment = (button, type, value, label) => {
+    setSettings(prev => ({
+      ...prev,
+      buttonAssignments: {
+        ...prev.buttonAssignments,
+        [button]: { type, value, label }
+      }
+    }))
+    setEditingButton(null)
+  }
+
+  const handleTouchpadAssignment = (touchpad, control) => {
+    setSettings(prev => ({
+      ...prev,
+      [touchpad]: { type: 'control', value: control, axis: touchpad === 'leftTouchpad' ? 'x' : 'y' }
+    }))
+  }
+
   const resetToDefaults = () => {
     const defaultSettings = {
       integrationEnabled: true,
       scalingMode: 'auto',
       customScale: 1.0,
       touchpadSensitivity: 1.0,
-      buttonMappingProfile: 'default',
       quickAccessEnabled: true,
       hudEnabled: true,
       vibrationEnabled: true,
-      autoDetect: true
+      autoDetect: true,
+      buttonAssignments: {
+        L4: { type: 'window', value: 9, label: 'Programmer' },
+        L5: { type: 'window', value: 20, label: 'Cues' },
+        R4: { type: 'window', value: 21, label: 'Executors' },
+        R5: { type: 'window', value: 40, label: 'FlexWindow' }
+      },
+      leftTouchpad: { type: 'control', value: 'Pan', axis: 'x' },
+      rightTouchpad: { type: 'control', value: 'Intensity', axis: 'y' }
     }
     setSettings(defaultSettings)
   }
@@ -136,163 +201,184 @@ function SteamDeckSetup() {
     detectGamepad()
   }
 
+  const getButtonAssignment = (button) => {
+    return settings.buttonAssignments?.[button] || { type: 'none', value: null, label: 'Not Assigned' }
+  }
+
   return (
     <div className="steamdeck-setup">
-      <h3>Steam Deck Configuration</h3>
+      <h3>🎮 Steam Deck Configuration</h3>
 
-      {/* Detection Status */}
-      <div className="setup-section">
-        <h4>Device Detection</h4>
+      {/* Auto Detection Status */}
+      <div className="setup-section detection-section">
+        <h4>📡 Auto-Detection</h4>
         <div className="detection-status">
-          <div className="status-row">
-            <span className="status-label">Steam Deck Detected:</span>
-            <span className={`status-value ${steamDeckDetected ? 'detected' : 'not-detected'}`}>
-              {steamDeckDetected ? '✓ Yes' : '✗ No'}
-            </span>
-            <button className="refresh-btn" onClick={forceRefreshDetection}>
-              Refresh
-            </button>
+          <div className="status-grid">
+            <div className="status-card">
+              <div className="status-icon">{steamDeckDetected ? '✅' : '❌'}</div>
+              <div className="status-info">
+                <span className="status-title">Steam Deck</span>
+                <span className={`status-subtitle ${steamDeckDetected ? 'detected' : 'not-detected'}`}>
+                  {steamDeckDetected ? 'Detected' : 'Not Detected'}
+                </span>
+              </div>
+            </div>
+
+            <div className="status-card">
+              <div className="status-icon">{gamepadConnected ? '🎮' : '⚠️'}</div>
+              <div className="status-info">
+                <span className="status-title">Gamepad</span>
+                <span className={`status-subtitle ${gamepadConnected ? 'detected' : 'not-detected'}`}>
+                  {gamepadConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
+            </div>
+
+            <div className="status-card">
+              <div className="status-icon">
+                {currentMode === 'desktop' && '🖥️'}
+                {currentMode === 'gaming' && '🎮'}
+                {currentMode === 'not-steam-deck' && '💻'}
+              </div>
+              <div className="status-info">
+                <span className="status-title">Mode</span>
+                <span className="status-subtitle">
+                  {currentMode === 'desktop' && 'Desktop'}
+                  {currentMode === 'gaming' && 'Gaming'}
+                  {currentMode === 'not-steam-deck' && 'Standard'}
+                </span>
+              </div>
+            </div>
+
+            <div className="status-card">
+              <div className="status-icon">📐</div>
+              <div className="status-info">
+                <span className="status-title">Resolution</span>
+                <span className="status-subtitle">{resolution.width}×{resolution.height}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="status-row">
-            <span className="status-label">Current Mode:</span>
-            <span className="status-value mode-badge">
-              {currentMode === 'desktop' && '🖥️ Desktop Mode'}
-              {currentMode === 'gaming' && '🎮 Gaming Mode'}
-              {currentMode === 'not-steam-deck' && 'Standard Device'}
-              {currentMode === 'unknown' && 'Unknown'}
-            </span>
-          </div>
-
-          <div className="status-row">
-            <span className="status-label">Resolution:</span>
-            <span className="status-value">{resolution.width} × {resolution.height}</span>
-          </div>
-
-          <div className="status-row">
-            <span className="status-label">Device Pixel Ratio:</span>
-            <span className="status-value">{devicePixelRatio.toFixed(2)}</span>
-          </div>
-
-          <div className="status-row">
-            <span className="status-label">Gamepad Connected:</span>
-            <span className={`status-value ${gamepadConnected ? 'detected' : 'not-detected'}`}>
-              {gamepadConnected ? '✓ Yes' : '✗ No'}
-            </span>
-          </div>
+          <button className="btn-refresh" onClick={forceRefreshDetection}>
+            🔄 Refresh Detection
+          </button>
 
           {gamepadInfo && (
-            <div className="gamepad-info">
-              <div className="info-detail">ID: {gamepadInfo.id}</div>
-              <div className="info-detail">Buttons: {gamepadInfo.buttons} | Axes: {gamepadInfo.axes}</div>
+            <div className="gamepad-details">
+              <strong>Gamepad Info:</strong> {gamepadInfo.id}<br />
+              <strong>Buttons:</strong> {gamepadInfo.buttons} | <strong>Axes:</strong> {gamepadInfo.axes}
             </div>
           )}
         </div>
       </div>
 
-      {/* Integration Settings */}
+      {/* Quick Access Button Assignment */}
       <div className="setup-section">
-        <h4>Integration Settings</h4>
+        <h4>🎯 Quick Access Buttons (Rear Paddles)</h4>
+        <p className="section-hint">Assign windows or commands to the back paddle buttons for instant access</p>
 
-        <div className="setting-row">
-          <label className="setting-label">
-            <input
-              type="checkbox"
-              checked={settings.integrationEnabled}
-              onChange={(e) => handleSettingChange('integrationEnabled', e.target.checked)}
-            />
-            Enable Steam Deck Integration
-          </label>
-          <span className="setting-hint">Advanced gamepad controls and button combos</span>
-        </div>
+        <div className="button-assignment-grid">
+          {['L4', 'L5', 'R4', 'R5'].map(button => {
+            const assignment = getButtonAssignment(button)
+            return (
+              <div key={button} className="button-assignment-card">
+                <div className="button-header">
+                  <span className="button-name">{button}</span>
+                  <span className="button-position">
+                    {button.startsWith('L') ? 'Left' : 'Right'} {button.endsWith('4') ? 'Top' : 'Bottom'}
+                  </span>
+                </div>
+                <div className="button-current">
+                  {assignment.label || 'Not Assigned'}
+                </div>
+                <button
+                  className="btn-assign"
+                  onClick={() => setEditingButton(editingButton === button ? null : button)}
+                >
+                  {editingButton === button ? 'Cancel' : 'Change'}
+                </button>
 
-        <div className="setting-row">
-          <label className="setting-label">
-            <input
-              type="checkbox"
-              checked={settings.quickAccessEnabled}
-              onChange={(e) => handleSettingChange('quickAccessEnabled', e.target.checked)}
-            />
-            Enable Quick Access Buttons (L4, L5, R4, R5)
-          </label>
-          <span className="setting-hint">Rear paddle buttons for quick window access</span>
-        </div>
-
-        <div className="setting-row">
-          <label className="setting-label">
-            <input
-              type="checkbox"
-              checked={settings.hudEnabled}
-              onChange={(e) => handleSettingChange('hudEnabled', e.target.checked)}
-            />
-            Show Steam Deck HUD
-          </label>
-          <span className="setting-hint">Display mode and combo overlay</span>
-        </div>
-
-        <div className="setting-row">
-          <label className="setting-label">
-            <input
-              type="checkbox"
-              checked={settings.vibrationEnabled}
-              onChange={(e) => handleSettingChange('vibrationEnabled', e.target.checked)}
-            />
-            Enable Haptic Feedback
-          </label>
-          <span className="setting-hint">Vibration on long-press and actions</span>
+                {editingButton === button && (
+                  <div className="assignment-dropdown">
+                    <div className="dropdown-section">
+                      <strong>Windows:</strong>
+                      <div className="option-grid">
+                        {AVAILABLE_WINDOWS.map(win => (
+                          <button
+                            key={win.id}
+                            className="option-btn"
+                            onClick={() => handleButtonAssignment(button, 'window', win.id, win.name)}
+                          >
+                            {win.icon} {win.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="dropdown-section">
+                      <strong>Commands:</strong>
+                      <div className="option-grid">
+                        {AVAILABLE_COMMANDS.map(cmd => (
+                          <button
+                            key={cmd}
+                            className="option-btn"
+                            onClick={() => handleButtonAssignment(button, 'command', cmd, cmd)}
+                          >
+                            {cmd}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Display Scaling */}
+      {/* Touchpad Assignment */}
       <div className="setup-section">
-        <h4>Display Scaling</h4>
+        <h4>🎮 Touchpad Controls</h4>
+        <p className="section-hint">Assign parameters to touchpads for real-time control</p>
 
-        <div className="setting-row">
-          <label className="setting-label">Scaling Mode:</label>
-          <select
-            value={settings.scalingMode}
-            onChange={(e) => handleSettingChange('scalingMode', e.target.value)}
-            className="setting-select"
-          >
-            <option value="auto">Auto (Detect by DPR)</option>
-            <option value="desktop">Force Desktop Mode (0.75x)</option>
-            <option value="gaming">Force Gaming Mode (1.15x)</option>
-            <option value="custom">Custom Scale</option>
-          </select>
+        <div className="touchpad-grid">
+          <div className="touchpad-card">
+            <div className="touchpad-header">
+              <span className="touchpad-name">Left Touchpad</span>
+              <span className="touchpad-axis">Horizontal (X-axis)</span>
+            </div>
+            <select
+              className="touchpad-select"
+              value={settings.leftTouchpad?.value || 'Pan'}
+              onChange={(e) => handleTouchpadAssignment('leftTouchpad', e.target.value)}
+            >
+              {AVAILABLE_CONTROLS.map(control => (
+                <option key={control} value={control}>{control}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="touchpad-card">
+            <div className="touchpad-header">
+              <span className="touchpad-name">Right Touchpad</span>
+              <span className="touchpad-axis">Vertical (Y-axis)</span>
+            </div>
+            <select
+              className="touchpad-select"
+              value={settings.rightTouchpad?.value || 'Intensity'}
+              onChange={(e) => handleTouchpadAssignment('rightTouchpad', e.target.value)}
+            >
+              {AVAILABLE_CONTROLS.map(control => (
+                <option key={control} value={control}>{control}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {settings.scalingMode === 'custom' && (
-          <div className="setting-row">
-            <label className="setting-label">Custom Scale Factor:</label>
-            <input
-              type="range"
-              min="0.5"
-              max="2.0"
-              step="0.05"
-              value={settings.customScale}
-              onChange={(e) => handleSettingChange('customScale', parseFloat(e.target.value))}
-              className="setting-slider"
-            />
-            <span className="setting-value">{settings.customScale.toFixed(2)}x</span>
-          </div>
-        )}
-
-        <div className="scaling-info">
-          <div className="info-badge info-desktop">
-            Desktop Mode: Compensates for OS DPI scaling (0.75x zoom)
-          </div>
-          <div className="info-badge info-gaming">
-            Gaming Mode: Enhanced visibility for larger touch targets (1.15x zoom)
-          </div>
-        </div>
-      </div>
-
-      {/* Touchpad Settings */}
-      <div className="setup-section">
-        <h4>Touchpad Settings</h4>
-
-        <div className="setting-row">
-          <label className="setting-label">Touchpad Sensitivity:</label>
+        <div className="sensitivity-control">
+          <label className="setting-label">
+            Touchpad Sensitivity: <strong>{settings.touchpadSensitivity.toFixed(1)}x</strong>
+          </label>
           <input
             type="range"
             min="0.1"
@@ -300,77 +386,129 @@ function SteamDeckSetup() {
             step="0.1"
             value={settings.touchpadSensitivity}
             onChange={(e) => handleSettingChange('touchpadSensitivity', parseFloat(e.target.value))}
-            className="setting-slider"
+            className="sensitivity-slider"
           />
-          <span className="setting-value">{settings.touchpadSensitivity.toFixed(1)}x</span>
         </div>
       </div>
 
-      {/* Button Mapping Profile */}
+      {/* Integration Settings */}
       <div className="setup-section">
-        <h4>Button Mapping</h4>
+        <h4>⚙️ Integration Settings</h4>
 
-        <div className="setting-row">
-          <label className="setting-label">Profile:</label>
-          <select
-            value={settings.buttonMappingProfile}
-            onChange={(e) => handleSettingChange('buttonMappingProfile', e.target.value)}
-            className="setting-select"
-          >
-            <option value="default">Default (MA3/Hog Style)</option>
-            <option value="custom">Custom (Configure in Gamepad Setup)</option>
-          </select>
-        </div>
+        <div className="settings-grid">
+          <label className="setting-checkbox">
+            <input
+              type="checkbox"
+              checked={settings.integrationEnabled}
+              onChange={(e) => handleSettingChange('integrationEnabled', e.target.checked)}
+            />
+            <span>Enable Steam Deck Integration</span>
+          </label>
 
-        <div className="button-mapping-preview">
-          <h5>Quick Access (Rear Paddles):</h5>
-          <ul>
-            <li><strong>L4:</strong> Programmer (Window 9)</li>
-            <li><strong>L5:</strong> Cues (Window 20)</li>
-            <li><strong>R4:</strong> Executors (Window 21)</li>
-            <li><strong>R5:</strong> FlexWindow (Window 40)</li>
-          </ul>
+          <label className="setting-checkbox">
+            <input
+              type="checkbox"
+              checked={settings.quickAccessEnabled}
+              onChange={(e) => handleSettingChange('quickAccessEnabled', e.target.checked)}
+            />
+            <span>Enable Quick Access Buttons</span>
+          </label>
 
-          <h5>Button Combos:</h5>
-          <ul>
-            <li><strong>View + A:</strong> Blackout</li>
-            <li><strong>View + B:</strong> Clear</li>
-            <li><strong>View + X:</strong> Highlight</li>
-            <li><strong>View + Y:</strong> Locate</li>
-            <li><strong>Menu + A:</strong> Record Cue</li>
-            <li><strong>Menu + D-Up:</strong> Next Cue</li>
-            <li><strong>Menu + D-Down:</strong> Previous Cue</li>
-          </ul>
+          <label className="setting-checkbox">
+            <input
+              type="checkbox"
+              checked={settings.hudEnabled}
+              onChange={(e) => handleSettingChange('hudEnabled', e.target.checked)}
+            />
+            <span>Show HUD Overlay</span>
+          </label>
+
+          <label className="setting-checkbox">
+            <input
+              type="checkbox"
+              checked={settings.vibrationEnabled}
+              onChange={(e) => handleSettingChange('vibrationEnabled', e.target.checked)}
+            />
+            <span>Enable Haptic Feedback</span>
+          </label>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="setup-section setup-actions">
+      {/* Display Scaling */}
+      <div className="setup-section">
+        <h4>📐 Display Scaling</h4>
+
+        <div className="scaling-options">
+          <label className="setting-label">Scaling Mode:</label>
+          <select
+            value={settings.scalingMode}
+            onChange={(e) => handleSettingChange('scalingMode', e.target.value)}
+            className="scaling-select"
+          >
+            <option value="auto">🔄 Auto (Detect by DPR)</option>
+            <option value="desktop">🖥️ Desktop Mode (0.75x)</option>
+            <option value="gaming">🎮 Gaming Mode (1.15x)</option>
+            <option value="custom">⚙️ Custom Scale</option>
+          </select>
+
+          {settings.scalingMode === 'custom' && (
+            <div className="custom-scale-control">
+              <label className="setting-label">
+                Scale Factor: <strong>{settings.customScale.toFixed(2)}x</strong>
+              </label>
+              <input
+                type="range"
+                min="0.5"
+                max="2.0"
+                step="0.05"
+                value={settings.customScale}
+                onChange={(e) => handleSettingChange('customScale', parseFloat(e.target.value))}
+                className="scale-slider"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="scaling-hints">
+          <div className="hint-badge hint-auto">
+            <strong>Auto:</strong> Automatically adjusts based on device pixel ratio
+          </div>
+          <div className="hint-badge hint-desktop">
+            <strong>Desktop:</strong> 0.75x zoom compensates for OS DPI scaling
+          </div>
+          <div className="hint-badge hint-gaming">
+            <strong>Gaming:</strong> 1.15x zoom for larger touch targets
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="setup-actions">
         <button className="btn-reset" onClick={resetToDefaults}>
-          Reset to Defaults
+          🔄 Reset to Defaults
         </button>
         <button className="btn-test" onClick={forceRefreshDetection}>
-          Test Detection
+          🧪 Test Detection
         </button>
       </div>
 
       {/* Info Panel */}
       {steamDeckDetected && (
-        <div className="info-panel">
-          <h5>✓ Steam Deck Optimizations Active</h5>
+        <div className="info-panel info-success">
+          <strong>✅ Steam Deck Optimizations Active</strong>
           <p>
-            RoControl has detected your Steam Deck and applied optimizations for the best experience.
-            Use the controls above to fine-tune settings for your workflow.
+            Your Steam Deck has been detected and optimized settings are active.
+            Customize button assignments above for your workflow.
           </p>
         </div>
       )}
 
       {!steamDeckDetected && (
         <div className="info-panel info-warning">
-          <h5>ℹ️ Not Running on Steam Deck</h5>
+          <strong>ℹ️ Not Running on Steam Deck</strong>
           <p>
-            Steam Deck specific features will be disabled. If you believe this is incorrect,
-            check your resolution (should be 1280×800) and click "Refresh" above.
+            Steam Deck features will be limited. Expected resolution: 1280×800.
+            Current: {resolution.width}×{resolution.height}
           </p>
         </div>
       )}
