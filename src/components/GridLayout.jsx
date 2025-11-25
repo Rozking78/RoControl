@@ -116,7 +116,9 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
   const [contextMenu, setContextMenu] = useState(null)
   const [draggedWindow, setDraggedWindow] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [dragTempPosition, setDragTempPosition] = useState(null) // Temporary position while dragging - prevents vibration
   const [resizingWindow, setResizingWindow] = useState(null)
+  const [resizeTempSize, setResizeTempSize] = useState(null) // Temporary size while resizing - prevents vibration
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [touchStartPos, setTouchStartPos] = useState(null)
   const [longPressActive, setLongPressActive] = useState(false)
@@ -398,17 +400,38 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const newX = clientX - rect.left - dragOffset.x
     const newY = clientY - rect.top - dragOffset.y
 
-    const newWindows = [...windows]
-    newWindows[draggedWindow] = {
-      ...newWindows[draggedWindow],
-      x: Math.max(0, Math.min(rect.width - newWindows[draggedWindow].width, newX)),
-      y: Math.max(0, Math.min(rect.height - newWindows[draggedWindow].height, newY))
-    }
+    const window = windows[draggedWindow]
+    const clampedX = Math.max(0, Math.min(rect.width - window.width, newX))
+    const clampedY = Math.max(0, Math.min(rect.height - window.height, newY))
 
-    saveLayout({ ...layout, windows: newWindows })
+    // Update temporary position only - don't save layout until drag completes
+    setDragTempPosition({ x: clampedX, y: clampedY })
   }
 
   const handlePointerUp = () => {
+    // Save final position/size when dragging/resizing completes
+    if (draggedWindow !== null && dragTempPosition) {
+      const newWindows = [...windows]
+      newWindows[draggedWindow] = {
+        ...newWindows[draggedWindow],
+        x: dragTempPosition.x,
+        y: dragTempPosition.y
+      }
+      saveLayout({ ...layout, windows: newWindows })
+      setDragTempPosition(null)
+    }
+
+    if (resizingWindow !== null && resizeTempSize) {
+      const newWindows = [...windows]
+      newWindows[resizingWindow] = {
+        ...newWindows[resizingWindow],
+        width: resizeTempSize.width,
+        height: resizeTempSize.height
+      }
+      saveLayout({ ...layout, windows: newWindows })
+      setResizeTempSize(null)
+    }
+
     setDraggedWindow(null)
     setResizingWindow(null)
   }
@@ -467,24 +490,24 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     const deltaX = clientX - resizingWindow.startX
     const deltaY = clientY - resizingWindow.startY
 
-    const newWindows = [...windows]
-    const win = { ...newWindows[resizingWindow.index] }
+    let newWidth = resizingWindow.startWidth
+    let newHeight = resizingWindow.startHeight
 
     switch (resizingWindow.edge) {
       case 'right':
-        win.width = Math.max(200, resizingWindow.startWidth + deltaX)
+        newWidth = Math.max(200, resizingWindow.startWidth + deltaX)
         break
       case 'bottom':
-        win.height = Math.max(150, resizingWindow.startHeight + deltaY)
+        newHeight = Math.max(150, resizingWindow.startHeight + deltaY)
         break
       case 'corner':
-        win.width = Math.max(200, resizingWindow.startWidth + deltaX)
-        win.height = Math.max(150, resizingWindow.startHeight + deltaY)
+        newWidth = Math.max(200, resizingWindow.startWidth + deltaX)
+        newHeight = Math.max(150, resizingWindow.startHeight + deltaY)
         break
     }
 
-    newWindows[resizingWindow.index] = win
-    saveLayout({ ...layout, windows: newWindows })
+    // Update temporary size only - don't save layout until resize completes
+    setResizeTempSize({ width: newWidth, height: newHeight })
   }
 
   // Render freeform windows
@@ -492,12 +515,20 @@ function GridLayout({ appState, editMode = false, onLayoutChange, externalLayout
     return windows.map((win, index) => {
       const ViewComponent = VIEW_COMPONENTS[win.view] || VIEW_COMPONENTS.empty
 
+      // Use temporary position/size while dragging/resizing to prevent vibration
+      const isDragging = draggedWindow === index
+      const isResizing = resizingWindow === index
+      const x = isDragging && dragTempPosition ? dragTempPosition.x : win.x
+      const y = isDragging && dragTempPosition ? dragTempPosition.y : win.y
+      const width = isResizing && resizeTempSize ? resizeTempSize.width : win.width
+      const height = isResizing && resizeTempSize ? resizeTempSize.height : win.height
+
       const windowStyle = {
         position: 'absolute',
-        left: `${win.x}px`,
-        top: `${win.y}px`,
-        width: `${win.width}px`,
-        height: `${win.height}px`,
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
         display: 'flex',
         flexDirection: 'column',
         background: '#1a1a1a',
