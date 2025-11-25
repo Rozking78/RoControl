@@ -1724,7 +1724,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="main-content" style={{ height: 'calc(100vh - 50px - 80px)', overflow: 'auto', paddingBottom: '0' }}>
+      <div className="main-content" style={{ height: 'calc(100vh - 50px - 160px)', overflow: 'auto', paddingBottom: '0' }}>
         <GridLayout
           appState={appState}
           editMode={gridEditMode}

@@ -2,7 +2,7 @@
 
 .cli-container {
   position: fixed;
-  bottom: 0;
+  bottom: 100px; /* Position above programmer bar (programmer is 100px tall) */
   left: 0;
   right: 0;
   background: linear-gradient(180deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%);
@@ -128,13 +128,4 @@
   .cli-selection {
     font-size: 14px;
   }
-}
-
-/* Adjust bottom spacing when CLI is present */
-body.cli-active .programmer-bar {
-  bottom: 60px;
-}
-
-body.cli-active .main-content {
-  padding-bottom: 120px;
 }

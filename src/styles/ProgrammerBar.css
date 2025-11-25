@@ -1,7 +1,7 @@
-/* Bottom Programmer Bar - Always visible, fixed above CLI */
+/* Bottom Programmer Bar - Always visible, fixed at bottom below CLI */
 .programmer-bar {
   position: fixed;
-  bottom: 60px; /* Position above CLI (CLI is ~60px tall) */
+  bottom: 0; /* Position at very bottom */
   left: 0;
   right: 0; /* Extend all the way to right edge (includes Master Fader area) */
   height: 100px; /* Increased from 80px to accommodate encoder wheels */
