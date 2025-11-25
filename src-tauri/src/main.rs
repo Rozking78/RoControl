@@ -456,6 +456,11 @@ async fn main() {
         }
     });
 
+    // Set environment variables to fix WebKit/EGL issues on Steam Deck
+    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    std::env::set_var("GDK_BACKEND", "x11");
+
     tauri::Builder::default()
         .manage(AppState {
             dmx_engine,
