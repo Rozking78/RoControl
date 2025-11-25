@@ -1,0 +1,426 @@
+/* Elgato Stream Deck Setup Styles */
+
+.elgato-streamdeck-setup {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.elgato-streamdeck-setup h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.elgato-streamdeck-setup h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.setup-section {
+  background: rgba(30, 30, 40, 0.8);
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Error Banner */
+.error-banner {
+  background: rgba(255, 50, 50, 0.2);
+  border: 2px solid #ff3333;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #ff6666;
+}
+
+.error-banner strong {
+  color: #ff3333;
+}
+
+/* Device Scanner */
+.device-scanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.btn-scan {
+  background: #6a4aff;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-scan:hover:not(:disabled) {
+  background: #8a6aff;
+  transform: translateY(-2px);
+}
+
+.btn-scan:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.device-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6a4aff;
+  background: rgba(106, 74, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #6a4aff;
+}
+
+/* Device List */
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.device-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(40, 40, 50, 0.6);
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.device-card:hover {
+  border-color: #6a4aff;
+  background: rgba(50, 50, 60, 0.7);
+}
+
+.device-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.device-info {
+  flex: 1;
+}
+
+.device-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.device-details {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.6;
+}
+
+.device-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-connect,
+.btn-disconnect {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-connect {
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-connect:hover {
+  background: #20ff98;
+  transform: translateY(-2px);
+}
+
+.btn-disconnect {
+  background: #ff4444;
+  color: #fff;
+}
+
+.btn-disconnect:hover {
+  background: #ff6666;
+  transform: translateY(-2px);
+}
+
+.no-devices {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Device Settings */
+.device-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.setting-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.setting-label strong {
+  color: #6a4aff;
+}
+
+.brightness-slider {
+  width: 100%;
+  height: 8px;
+  background: #2a2a2a;
+  border-radius: 4px;
+  outline: none;
+  accent-color: #6a4aff;
+  cursor: pointer;
+}
+
+.btn-reset-device {
+  background: #ff8800;
+  color: #000;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+
+.btn-reset-device:hover {
+  background: #ffaa00;
+  transform: translateY(-2px);
+}
+
+/* Button Grid */
+.streamdeck-button-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.streamdeck-button-card {
+  background: rgba(40, 40, 50, 0.6);
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.streamdeck-button-card:hover {
+  border-color: #6a4aff;
+}
+
+.button-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6a4aff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.button-assignment {
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #00ff88;
+  text-align: center;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-assign-streamdeck,
+.btn-clear-streamdeck {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-assign-streamdeck {
+  background: #6a4aff;
+  color: #fff;
+}
+
+.btn-assign-streamdeck:hover {
+  background: #8a6aff;
+}
+
+.btn-clear-streamdeck {
+  background: #ff4444;
+  color: #fff;
+}
+
+.btn-clear-streamdeck:hover {
+  background: #ff6666;
+}
+
+/* Assignment Dropdown */
+.button-assignment-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: rgba(20, 20, 30, 0.98);
+  border: 2px solid #6a4aff;
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dropdown-section {
+  margin-bottom: 16px;
+}
+
+.dropdown-section:last-child {
+  margin-bottom: 0;
+}
+
+.dropdown-section strong {
+  display: block;
+  color: #6a4aff;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.option-btn {
+  background: rgba(40, 40, 50, 0.8);
+  border: 1px solid #444;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.option-btn:hover {
+  background: #6a4aff;
+  color: #fff;
+  border-color: #6a4aff;
+  transform: translateY(-2px);
+}
+
+.option-btn:active {
+  transform: translateY(0);
+}
+
+/* Section Hint */
+.section-hint {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* Info Panel */
+.info-panel {
+  background: rgba(106, 74, 255, 0.1);
+  border: 2px solid #6a4aff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.info-panel strong {
+  display: block;
+  color: #6a4aff;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.info-panel p {
+  color: #888;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .streamdeck-button-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+  }
+
+  .device-scanner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .device-count {
+    text-align: center;
+  }
+}

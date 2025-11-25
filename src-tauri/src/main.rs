@@ -3,6 +3,7 @@
 
 mod web_server;
 mod ndi_support;
+mod streamdeck_support;
 
 use artnet_protocol::*;
 use sacn::source::SacnSource;
@@ -77,6 +78,7 @@ struct AppState {
     fixtures: Arc<Mutex<HashMap<String, Fixture>>>,
     fixture_library: Arc<Mutex<HashMap<String, GdtfFixtureType>>>,
     programmer: Arc<Mutex<HashMap<String, u8>>>, // fixture_id:channel -> value
+    streamdeck_manager: Arc<Mutex<streamdeck_support::StreamDeckManager>>,
 }
 
 impl DmxEngine {
@@ -354,6 +356,70 @@ async fn execute_cli_command(
     Ok(format!("CLI command received: {}", command))
 }
 
+// Stream Deck Commands
+#[tauri::command]
+fn scan_streamdeck_devices(
+    state: State<AppState>,
+) -> std::result::Result<Vec<streamdeck_support::StreamDeckDevice>, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.scan_devices()
+}
+
+#[tauri::command]
+fn connect_streamdeck(
+    state: State<AppState>,
+    serial: String,
+) -> std::result::Result<String, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.connect_device(&serial)
+}
+
+#[tauri::command]
+fn disconnect_streamdeck(
+    state: State<AppState>,
+    serial: String,
+) -> std::result::Result<String, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.disconnect_device(&serial)
+}
+
+#[tauri::command]
+fn set_streamdeck_brightness(
+    state: State<AppState>,
+    serial: String,
+    brightness: u8,
+) -> std::result::Result<String, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.set_brightness(&serial, brightness)
+}
+
+#[tauri::command]
+fn read_streamdeck_buttons(
+    state: State<AppState>,
+    serial: String,
+) -> std::result::Result<Vec<bool>, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.read_buttons(&serial)
+}
+
+#[tauri::command]
+fn reset_streamdeck(
+    state: State<AppState>,
+    serial: String,
+) -> std::result::Result<String, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.reset_device(&serial)
+}
+
+#[tauri::command]
+fn clear_streamdeck_buttons(
+    state: State<AppState>,
+    serial: String,
+) -> std::result::Result<String, String> {
+    let manager = state.streamdeck_manager.lock().map_err(|e| e.to_string())?;
+    manager.clear_all_buttons(&serial)
+}
+
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
@@ -362,6 +428,15 @@ fn main() {
     let fixtures = Arc::new(Mutex::new(HashMap::new()));
     let fixture_library = Arc::new(Mutex::new(HashMap::new()));
     let programmer = Arc::new(Mutex::new(HashMap::new()));
+
+    // Initialize Stream Deck manager
+    let streamdeck_manager = Arc::new(Mutex::new(
+        streamdeck_support::StreamDeckManager::new()
+            .unwrap_or_else(|e| {
+                eprintln!("Failed to initialize Stream Deck manager: {}", e);
+                panic!("Stream Deck initialization failed");
+            })
+    ));
 
     // Setup video directory for web remote
     let video_dir = dirs::video_dir()
@@ -386,6 +461,7 @@ fn main() {
             fixtures,
             fixture_library,
             programmer,
+            streamdeck_manager,
         })
         .invoke_handler(tauri::generate_handler![
             set_dmx_channel,
@@ -400,6 +476,13 @@ fn main() {
             get_network_interfaces,
             set_network_interface,
             execute_cli_command,
+            scan_streamdeck_devices,
+            connect_streamdeck,
+            disconnect_streamdeck,
+            set_streamdeck_brightness,
+            read_streamdeck_buttons,
+            reset_streamdeck,
+            clear_streamdeck_buttons,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
