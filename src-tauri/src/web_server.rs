@@ -106,11 +106,13 @@ pub async fn start_server(video_dir: PathBuf) -> Result<(), Box<dyn std::error::
         .layer(cors)
         .with_state(state);
 
-    let addr = "0.0.0.0:8080";
+    let addr = "0.0.0.0:8080".parse::<std::net::SocketAddr>().unwrap();
     println!("Web Remote Server starting on http://{}", addr);
 
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    // axum 0.6 API - use hyper::Server
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await?;
 
     Ok(())
 }

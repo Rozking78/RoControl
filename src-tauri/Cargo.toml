@@ -41,7 +41,7 @@ if-addrs = "0.10"  # Network interface enumeration
 mdns-sd = "0.10"  # mDNS for NDI discovery
 
 # Web server - pinned versions for compatibility
-axum = "0.6.20"  # Web framework for HTTP server
+axum = { version = "0.6.20", features = ["ws", "multipart"] }  # Web framework with WebSocket and multipart support
 tower = "0.4.13"  # Service abstractions
 tower-http = { version = "0.4.4", features = ["fs", "cors"] }  # HTTP utilities
 tokio-tungstenite = "0.20"  # WebSocket support

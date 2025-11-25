@@ -45,7 +45,7 @@ impl StreamDeckManager {
     }
 
     pub fn scan_devices(&self) -> Result<Vec<StreamDeckDevice>, String> {
-        let api = self.hid_api.lock().map_err(|e| e.to_string())?;
+        let mut api = self.hid_api.lock().map_err(|e| e.to_string())?;
         api.refresh_devices().map_err(|e| e.to_string())?;
 
         let mut found_devices = Vec::new();
@@ -199,12 +199,12 @@ impl StreamDeckManager {
         }
     }
 
-    pub fn set_button_image(&self, serial: &str, button_id: u8, image_data: Vec<u8>) -> Result<String, String> {
+    pub fn set_button_image(&self, serial: &str, button_id: u8, _image_data: Vec<u8>) -> Result<String, String> {
         let devices = self.devices.lock().map_err(|e| e.to_string())?;
-        let device = devices.get(serial)
+        let _device_ref = devices.get(serial)
             .ok_or_else(|| format!("Device not connected: {}", serial))?;
 
-        let device = device.lock().map_err(|e| e.to_string())?;
+        let _device = _device_ref.lock().map_err(|e| e.to_string())?;
 
         // Stream Deck expects images in specific format (varies by model)
         // This is a simplified implementation
@@ -249,9 +249,10 @@ impl StreamDeckManager {
 }
 
 // Utility function to generate simple text button image
-pub fn generate_text_image(text: &str, width: u16, height: u16) -> Result<Vec<u8>, String> {
+pub fn generate_text_image(_text: &str, width: u16, height: u16) -> Result<Vec<u8>, String> {
     // Create a simple black background with white text
     // In production, would use imageproc or similar for text rendering
+    // TODO: Actually render the text parameter
     let mut img: RgbaImage = ImageBuffer::new(width as u32, height as u32);
 
     // Fill with black
