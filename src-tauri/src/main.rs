@@ -423,8 +423,7 @@ fn clear_streamdeck_buttons(
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let dmx_engine = Arc::new(Mutex::new(DmxEngine::new("2.255.255.255".to_string())));
     let fixtures = Arc::new(Mutex::new(HashMap::new()));
     let fixture_library = Arc::new(Mutex::new(HashMap::new()));
@@ -448,18 +447,13 @@ async fn main() {
     // Create video directory if it doesn't exist
     let _ = std::fs::create_dir_all(&video_dir);
 
-    // Start web server in background
+    // Start web server in background using Tauri's async runtime
     let web_video_dir = video_dir.clone();
-    tokio::spawn(async move {
+    tauri::async_runtime::spawn(async move {
         if let Err(e) = web_server::start_server(web_video_dir).await {
             eprintln!("Web server error: {}", e);
         }
     });
-
-    // Set environment variables to fix WebKit/EGL issues on Steam Deck
-    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
-    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-    std::env::set_var("GDK_BACKEND", "x11");
 
     tauri::Builder::default()
         .manage(AppState {
