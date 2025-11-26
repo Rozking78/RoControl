@@ -114,7 +114,7 @@ jobs:
         export SteamAppId=0
         export STEAM_DISABLE_OSK=1
 
-        exec "${HERE}/usr/bin/rocontrol" "$@"
+        exec "${HERE}/usr/bin/ro-control" "$@"
         APPRUN_EOF
 
         chmod +x squashfs-root/AppRun

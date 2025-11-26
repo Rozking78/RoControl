@@ -1,6 +1,14 @@
 # RoControl Changelog
 
-## v0.4.8 (2025-11-26) - AppImage Repackaging Fix
+## v0.4.9 (2025-11-26) - Binary Name Fix
+
+### Fixed
+- Fixed AppRun binary path: changed from `rocontrol` to `ro-control` (with hyphen)
+- v0.4.8 failed to launch because binary name didn't match
+
+---
+
+## v0.4.8 (2025-11-26) - AppImage Repackaging Fix (FAILED TO LAUNCH)
 
 ### Changed
 - Replaced appimagetool with manual AppImage repackaging using mksquashfs
