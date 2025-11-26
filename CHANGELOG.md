@@ -1,10 +1,50 @@
 # RoControl Changelog
 
-## v0.4.9 (2025-11-26) - Binary Name Fix
+## v0.4.9 (2025-11-26) - Binary Name Fix (BUILD FAILED)
 
 ### Fixed
 - Fixed AppRun binary path: changed from `rocontrol` to `ro-control` (with hyphen)
 - v0.4.8 failed to launch because binary name didn't match
+
+### Result
+- Build FAILED - mksquashfs/runtime combination issues in GitHub Actions
+- AppImage repackaging not reliable in CI environment
+
+---
+
+## Current Status (2025-11-26)
+
+### White Screen Issue - NOT YET FIXED
+The white screen issue on Steam Deck remains unresolved. Multiple approaches have been attempted:
+
+**Root Cause:**
+- WebKit2GTK requires environment variables set BEFORE process execution
+- Tauri's AppImage bundler generates generic AppRun without Steam Deck-specific settings
+- Environment variables must be in AppRun script, not Rust code
+
+**Attempted Fixes:**
+1. v0.4.3-0.4.5: Setting env vars in Rust `main()` - Failed (too late, WebKit already initializing)
+2. v0.4.6-0.4.7: Post-build patching with appimagetool - Failed (FUSE requirements in CI)
+3. v0.4.8: Manual squashfs repackaging - Build succeeded but wrong binary name
+4. v0.4.9: Fixed binary name - Build failed (squashfs/runtime issues)
+
+**Required Environment Variables:**
+```bash
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export GDK_RENDERING=image
+export GDK_BACKEND=x11
+export LIBGL_ALWAYS_SOFTWARE=1
+```
+
+**Workaround:**
+The web interface works perfectly - backend services start successfully at http://localhost:8080
+Use the web launcher script: `/home/deck/rocontrol-web-launcher.sh`
+
+**Next Steps:**
+- Try building AppImage locally on Mac with proper AppRun
+- Consider alternative: Build on Steam Deck if filesystem constraints can be resolved
+- Investigate Tauri v2 upgrade (may have better AppImage/WebKit control)
 
 ---
 
