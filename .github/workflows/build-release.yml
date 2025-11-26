@@ -81,14 +81,21 @@ jobs:
 
     - name: Patch AppImage with custom AppRun
       run: |
+        set -e
         cd src-tauri/target/release/bundle/appimage
+
         APPIMAGE=$(ls *.AppImage | head -1)
-        echo "Patching $APPIMAGE with custom AppRun..."
+        echo "Found AppImage: $APPIMAGE"
 
         # Extract AppImage
-        ./$APPIMAGE --appimage-extract
+        echo "Extracting AppImage..."
+        ./$APPIMAGE --appimage-extract || { echo "Extraction failed"; exit 1; }
+
+        # Backup original AppRun
+        cp squashfs-root/AppRun squashfs-root/AppRun.backup
 
         # Replace AppRun with our custom version that sets environment variables
+        echo "Creating custom AppRun..."
         cat > squashfs-root/AppRun << 'APPRUN_EOF'
         #!/bin/bash
         SELF=$(readlink -f "$0")
@@ -112,15 +119,31 @@ jobs:
 
         chmod +x squashfs-root/AppRun
 
-        # Repackage AppImage
+        echo "AppRun created successfully"
+        echo "AppRun contents:"
+        cat squashfs-root/AppRun
+
+        # Download and setup appimagetool
+        echo "Downloading appimagetool..."
         wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
-        ARCH=x86_64 ./appimagetool-x86_64.AppImage squashfs-root $APPIMAGE
+
+        # Move original AppImage
+        mv $APPIMAGE ${APPIMAGE}.old
+
+        # Repackage AppImage
+        echo "Repackaging AppImage..."
+        ARCH=x86_64 ./appimagetool-x86_64.AppImage squashfs-root $APPIMAGE || {
+          echo "Repackaging failed, restoring original";
+          mv ${APPIMAGE}.old $APPIMAGE;
+          exit 1;
+        }
 
         # Clean up
-        rm -rf squashfs-root appimagetool-x86_64.AppImage
+        rm -rf squashfs-root appimagetool-x86_64.AppImage ${APPIMAGE}.old
 
         echo "AppImage patched successfully!"
+        ls -lh $APPIMAGE
 
     - name: List build artifacts
       run: |
