@@ -79,6 +79,49 @@ jobs:
     - name: Build Tauri app
       run: npm run tauri build -- --verbose
 
+    - name: Patch AppImage with custom AppRun
+      run: |
+        cd src-tauri/target/release/bundle/appimage
+        APPIMAGE=$(ls *.AppImage | head -1)
+        echo "Patching $APPIMAGE with custom AppRun..."
+
+        # Extract AppImage
+        ./$APPIMAGE --appimage-extract
+
+        # Replace AppRun with our custom version that sets environment variables
+        cat > squashfs-root/AppRun << 'APPRUN_EOF'
+        #!/bin/bash
+        SELF=$(readlink -f "$0")
+        HERE=${SELF%/*}
+        export PATH="${HERE}/usr/bin/:${PATH}"
+        export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
+
+        # Steam Deck / WebKit EGL fix - CRITICAL: Must be set before exec
+        export WEBKIT_DISABLE_COMPOSITING_MODE=1
+        export WEBKIT_DISABLE_DMABUF_RENDERER=1
+        export GDK_RENDERING=image
+        export GDK_BACKEND=x11
+        export LIBGL_ALWAYS_SOFTWARE=1
+
+        # Disable Steam's on-screen keyboard
+        export SteamAppId=0
+        export STEAM_DISABLE_OSK=1
+
+        exec "${HERE}/usr/bin/rocontrol" "$@"
+        APPRUN_EOF
+
+        chmod +x squashfs-root/AppRun
+
+        # Repackage AppImage
+        wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        ARCH=x86_64 ./appimagetool-x86_64.AppImage squashfs-root $APPIMAGE
+
+        # Clean up
+        rm -rf squashfs-root appimagetool-x86_64.AppImage
+
+        echo "AppImage patched successfully!"
+
     - name: List build artifacts
       run: |
         echo "=== Debian Package ==="
