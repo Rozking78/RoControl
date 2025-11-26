@@ -123,24 +123,30 @@ jobs:
         echo "AppRun contents:"
         cat squashfs-root/AppRun
 
-        # Download and setup appimagetool
-        echo "Downloading appimagetool..."
-        wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-        chmod +x appimagetool-x86_64.AppImage
+        # Install squashfs-tools for mksquashfs
+        echo "Installing squashfs-tools..."
+        sudo apt-get install -y squashfs-tools
 
-        # Move original AppImage
+        # Download runtime
+        echo "Downloading AppImage runtime..."
+        wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-x86_64
+        chmod +x runtime-x86_64
+
+        # Create new squashfs
+        echo "Creating squashfs filesystem..."
+        mksquashfs squashfs-root filesystem.squashfs -root-owned -noappend -comp xz -Xbcj x86 -b 1M -mkfs-time 0
+
+        # Combine runtime + squashfs to create new AppImage
+        echo "Creating new AppImage..."
+        cat runtime-x86_64 filesystem.squashfs > ${APPIMAGE}.new
+        chmod +x ${APPIMAGE}.new
+
+        # Replace old AppImage with new one
         mv $APPIMAGE ${APPIMAGE}.old
-
-        # Repackage AppImage
-        echo "Repackaging AppImage..."
-        ARCH=x86_64 ./appimagetool-x86_64.AppImage squashfs-root $APPIMAGE || {
-          echo "Repackaging failed, restoring original";
-          mv ${APPIMAGE}.old $APPIMAGE;
-          exit 1;
-        }
+        mv ${APPIMAGE}.new $APPIMAGE
 
         # Clean up
-        rm -rf squashfs-root appimagetool-x86_64.AppImage ${APPIMAGE}.old
+        rm -rf squashfs-root runtime-x86_64 filesystem.squashfs ${APPIMAGE}.old
 
         echo "AppImage patched successfully!"
         ls -lh $APPIMAGE

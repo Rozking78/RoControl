@@ -1,5 +1,28 @@
 # RoControl Changelog
 
+## v0.4.8 (2025-11-26) - AppImage Repackaging Fix
+
+### Changed
+- Replaced appimagetool with manual AppImage repackaging using mksquashfs
+- Now uses squashfs-tools and AppImage runtime to rebuild patched AppImage
+- More reliable repackaging that doesn't require FUSE
+
+### Technical Details
+- v0.4.7 failed because appimagetool requires FUSE which may not be available in GitHub Actions
+- v0.4.8 manually creates squashfs filesystem and combines with AppImage runtime
+- Same custom AppRun with Steam Deck environment variables
+
+---
+
+## v0.4.7 (2025-11-26) - Build Failed
+
+### Result
+- Build FAILED - appimagetool couldn't repackage AppImage in GitHub Actions environment
+- Likely due to FUSE requirement or other containerization issues
+- Led to v0.4.8 with manual repackaging approach
+
+---
+
 ## v0.4.6 (2025-11-25) - WHITE SCREEN FIX
 
 ### Fixed
