@@ -91,32 +91,46 @@ jobs:
         echo "Extracting AppImage..."
         ./$APPIMAGE --appimage-extract || { echo "Extraction failed"; exit 1; }
 
+        # Verify binary exists and determine correct name
+        if [ -f "squashfs-root/usr/bin/ro-control" ]; then
+          BINARY_NAME="ro-control"
+        elif [ -f "squashfs-root/usr/bin/rocontrol" ]; then
+          BINARY_NAME="rocontrol"
+        else
+          echo "ERROR: Could not find binary in squashfs-root/usr/bin/"
+          ls -la squashfs-root/usr/bin/
+          exit 1
+        fi
+        echo "Found binary: $BINARY_NAME"
+
         # Backup original AppRun
         cp squashfs-root/AppRun squashfs-root/AppRun.backup
 
-        # Replace AppRun with our custom version that sets environment variables
+        # Create custom AppRun (no leading whitespace in heredoc)
         echo "Creating custom AppRun..."
         cat > squashfs-root/AppRun << 'APPRUN_EOF'
-        #!/bin/bash
-        SELF=$(readlink -f "$0")
-        HERE=${SELF%/*}
-        export PATH="${HERE}/usr/bin/:${PATH}"
-        export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
+#!/bin/bash
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+export PATH="${HERE}/usr/bin/:${PATH}"
+export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
 
-        # Steam Deck / WebKit EGL fix - CRITICAL: Must be set before exec
-        export WEBKIT_DISABLE_COMPOSITING_MODE=1
-        export WEBKIT_DISABLE_DMABUF_RENDERER=1
-        export GDK_RENDERING=image
-        export GDK_BACKEND=x11
-        export LIBGL_ALWAYS_SOFTWARE=1
+# Steam Deck / WebKit EGL fix - CRITICAL: Must be set before exec
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export GDK_RENDERING=image
+export GDK_BACKEND=x11
+export LIBGL_ALWAYS_SOFTWARE=1
 
-        # Disable Steam's on-screen keyboard
-        export SteamAppId=0
-        export STEAM_DISABLE_OSK=1
+# Disable Steam's on-screen keyboard
+export SteamAppId=0
+export STEAM_DISABLE_OSK=1
 
-        exec "${HERE}/usr/bin/ro-control" "$@"
-        APPRUN_EOF
+exec "${HERE}/usr/bin/BINARY_NAME_PLACEHOLDER" "$@"
+APPRUN_EOF
 
+        # Replace binary name placeholder
+        sed -i "s/BINARY_NAME_PLACEHOLDER/$BINARY_NAME/g" squashfs-root/AppRun
         chmod +x squashfs-root/AppRun
 
         echo "AppRun created successfully"
@@ -136,10 +150,25 @@ jobs:
         echo "Creating squashfs filesystem..."
         mksquashfs squashfs-root filesystem.squashfs -root-owned -noappend -comp xz -Xbcj x86 -b 1M -mkfs-time 0
 
+        # Verify squashfs was created
+        if [ ! -f "filesystem.squashfs" ]; then
+          echo "ERROR: Failed to create squashfs filesystem"
+          exit 1
+        fi
+        echo "Squashfs created successfully ($(stat -c%s filesystem.squashfs) bytes)"
+
         # Combine runtime + squashfs to create new AppImage
         echo "Creating new AppImage..."
         cat runtime-x86_64 filesystem.squashfs > ${APPIMAGE}.new
         chmod +x ${APPIMAGE}.new
+
+        # Verify new AppImage size
+        NEW_SIZE=$(stat -c%s ${APPIMAGE}.new)
+        echo "New AppImage size: $NEW_SIZE bytes"
+        if [ "$NEW_SIZE" -lt 1000000 ]; then
+          echo "ERROR: New AppImage is suspiciously small (< 1MB)"
+          exit 1
+        fi
 
         # Replace old AppImage with new one
         mv $APPIMAGE ${APPIMAGE}.old
