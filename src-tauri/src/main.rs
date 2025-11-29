@@ -6,6 +6,7 @@ mod ndi_support;
 mod streamdeck_support;
 mod node_manager;
 mod node_api;
+mod claude_session_coordinator;
 
 use artnet_protocol::*;
 use sacn::source::SacnSource;
@@ -82,6 +83,7 @@ struct AppState {
     programmer: Arc<Mutex<HashMap<String, u8>>>, // fixture_id:channel -> value
     streamdeck_manager: Arc<Mutex<streamdeck_support::StreamDeckManager>>,
     node_manager: Arc<Mutex<node_manager::NodeManager>>,
+    session_coordinator: Arc<Mutex<claude_session_coordinator::ClaudeSessionCoordinator>>,
 }
 
 impl DmxEngine {
@@ -506,6 +508,120 @@ fn update_node_heartbeat(
     Ok("Heartbeat updated".to_string())
 }
 
+// Claude Session Coordinator Commands
+
+#[tauri::command]
+async fn register_claude_session(
+    state: State<'_, AppState>,
+) -> std::result::Result<String, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    coordinator.register_session().await?;
+    Ok("Session registered".to_string())
+}
+
+#[tauri::command]
+async fn session_heartbeat(
+    state: State<'_, AppState>,
+    status: String,
+    current_task: Option<String>,
+) -> std::result::Result<String, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    let session_status = match status.as_str() {
+        "active" => claude_session_coordinator::SessionStatus::Active,
+        "idle" => claude_session_coordinator::SessionStatus::Idle,
+        "busy" => claude_session_coordinator::SessionStatus::Busy,
+        _ => claude_session_coordinator::SessionStatus::Offline,
+    };
+    coordinator.heartbeat(session_status, current_task).await?;
+    Ok("Heartbeat sent".to_string())
+}
+
+#[tauri::command]
+async fn sync_claude_sessions(
+    state: State<'_, AppState>,
+) -> std::result::Result<Vec<claude_session_coordinator::ClaudeSession>, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    coordinator.sync_sessions().await
+}
+
+#[tauri::command]
+async fn trigger_session_action(
+    state: State<'_, AppState>,
+    target_session: String,
+    action_type: String,
+    payload: serde_json::Value,
+) -> std::result::Result<String, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    let action = match action_type.as_str() {
+        "execute_command" => claude_session_coordinator::ActionType::ExecuteCommand,
+        "pull_logs" => claude_session_coordinator::ActionType::PullLogs,
+        "sync_state" => claude_session_coordinator::ActionType::SyncState,
+        "trigger_build" => claude_session_coordinator::ActionType::TriggerBuild,
+        "request_status" => claude_session_coordinator::ActionType::RequestStatus,
+        _ => claude_session_coordinator::ActionType::Custom,
+    };
+    coordinator.trigger_action(target_session, action, payload).await
+}
+
+#[tauri::command]
+async fn check_pending_session_actions(
+    state: State<'_, AppState>,
+) -> std::result::Result<Vec<claude_session_coordinator::SessionAction>, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    coordinator.check_pending_actions().await
+}
+
+#[tauri::command]
+async fn complete_session_action(
+    state: State<'_, AppState>,
+    action_id: String,
+    success: bool,
+    message: String,
+) -> std::result::Result<String, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    let result = if success {
+        Ok(message)
+    } else {
+        Err(message)
+    };
+    coordinator.complete_action(action_id, result).await?;
+    Ok("Action completed".to_string())
+}
+
+#[tauri::command]
+async fn pull_all_session_logs(
+    state: State<'_, AppState>,
+) -> std::result::Result<Vec<claude_session_coordinator::SessionLog>, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    coordinator.pull_all_logs().await
+}
+
+#[tauri::command]
+async fn log_session_message(
+    state: State<'_, AppState>,
+    level: String,
+    message: String,
+) -> std::result::Result<String, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    let log_level = match level.as_str() {
+        "info" => claude_session_coordinator::LogLevel::Info,
+        "warning" => claude_session_coordinator::LogLevel::Warning,
+        "error" => claude_session_coordinator::LogLevel::Error,
+        "success" => claude_session_coordinator::LogLevel::Success,
+        _ => claude_session_coordinator::LogLevel::Info,
+    };
+    coordinator.log(log_level, message).await?;
+    Ok("Logged".to_string())
+}
+
+#[tauri::command]
+fn get_session_info(
+    state: State<AppState>,
+) -> std::result::Result<claude_session_coordinator::ClaudeSession, String> {
+    let coordinator = state.session_coordinator.lock().map_err(|e| e.to_string())?;
+    coordinator.get_current_session()
+}
+
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
@@ -532,6 +648,26 @@ fn main() {
                 eprintln!("Failed to initialize Node Manager: {}", e);
                 panic!("Node Manager initialization failed");
             })
+    ));
+
+    // Initialize Claude Session Coordinator
+    let repo_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let session_id = uuid::Uuid::new_v4().to_string();
+    let machine_name = hostname::get()
+        .ok()
+        .and_then(|h| h.into_string().ok())
+        .unwrap_or_else(|| "unknown".to_string());
+
+    let session_coordinator = Arc::new(Mutex::new(
+        claude_session_coordinator::ClaudeSessionCoordinator::new(
+            repo_path.clone(),
+            session_id,
+            machine_name
+        )
+        .unwrap_or_else(|e| {
+            eprintln!("Failed to initialize Session Coordinator: {}", e);
+            panic!("Session Coordinator initialization failed");
+        })
     ));
 
     // Setup video directory for web remote
@@ -567,6 +703,7 @@ fn main() {
             programmer,
             streamdeck_manager,
             node_manager,
+            session_coordinator,
         })
         .invoke_handler(tauri::generate_handler![
             set_dmx_channel,
@@ -597,6 +734,15 @@ fn main() {
             get_all_nodes,
             get_node_info,
             update_node_heartbeat,
+            register_claude_session,
+            session_heartbeat,
+            sync_claude_sessions,
+            trigger_session_action,
+            check_pending_session_actions,
+            complete_session_action,
+            pull_all_session_logs,
+            log_session_message,
+            get_session_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

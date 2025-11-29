@@ -53,6 +53,7 @@ dirs = "5.0"  # User directories
 bytes = "1.5"  # Byte utilities for NDI streams
 image = "0.24"  # Image processing for Stream Deck button icons
 uuid = { version = "1.6", features = ["v4"] }  # UUID generation for node IDs
+hostname = "0.3"  # Get machine hostname for session identification
 
 [features]
 default = ["custom-protocol"]
