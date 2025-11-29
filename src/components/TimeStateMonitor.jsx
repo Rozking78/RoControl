@@ -198,9 +198,23 @@ const TimeStateMonitor = () => {
                     />
                   </div>
                   <div className="progress-info">
-                    <span className="elapsed">{formatDuration(state.elapsed_ms)}</span>
-                    <span className="progress-percent">{state.progress_percent.toFixed(1)}%</span>
-                    <span className="duration">{formatDuration(state.duration_type.finite.duration_ms)}</span>
+                    <div className="time-display">
+                      <span className="time-label">Elapsed:</span>
+                      <span className="elapsed">{formatDuration(state.elapsed_ms)}</span>
+                    </div>
+                    <div className="time-display">
+                      <span className="time-label">Remaining:</span>
+                      <span className="remaining">
+                        {formatDuration(state.duration_type.finite.duration_ms - state.elapsed_ms)}
+                      </span>
+                    </div>
+                    <div className="time-display">
+                      <span className="time-label">Total:</span>
+                      <span className="duration">{formatDuration(state.duration_type.finite.duration_ms)}</span>
+                    </div>
+                  </div>
+                  <div className="progress-percent-display">
+                    {state.progress_percent.toFixed(1)}%
                   </div>
                 </div>
               )}

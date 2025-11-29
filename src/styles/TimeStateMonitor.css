@@ -253,26 +253,50 @@
 }
 
 .progress-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.time-display {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
+  flex-direction: column;
+  gap: 4px;
   font-family: 'Courier New', monospace;
 }
 
-.progress-info .elapsed {
-  color: #00ff88;
-  font-weight: 600;
-}
-
-.progress-info .progress-percent {
-  color: #00d4ff;
-  font-weight: 700;
-}
-
-.progress-info .duration {
+.time-label {
+  font-size: 10px;
   color: #888;
   font-weight: 600;
+  text-transform: uppercase;
+}
+
+.time-display .elapsed {
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.time-display .remaining {
+  color: #ffaa00;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.time-display .duration {
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.progress-percent-display {
+  text-align: center;
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 18px;
+  font-family: 'Courier New', monospace;
 }
 
 /* Elapsed Section (for streams) */
