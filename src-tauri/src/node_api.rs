@@ -19,6 +19,7 @@ use crate::node_manager::{
 pub struct NodeApiState {
     pub node_manager: Arc<Mutex<NodeManager>>,
     pub command_tx: broadcast::Sender<NodeCommand>,
+    pub time_manager: Option<Arc<Mutex<crate::time_manager::TimeManager>>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -28,12 +29,16 @@ pub struct ApiResponse {
 }
 
 /// Start the node API server on port 9000
-pub async fn start_node_api(node_manager: Arc<Mutex<NodeManager>>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn start_node_api(
+    node_manager: Arc<Mutex<NodeManager>>,
+    time_manager: Arc<Mutex<crate::time_manager::TimeManager>>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let (command_tx, _) = broadcast::channel(100);
 
     let state = NodeApiState {
         node_manager,
         command_tx,
+        time_manager: Some(time_manager),
     };
 
     let cors = CorsLayer::new()
@@ -59,6 +64,9 @@ pub async fn start_node_api(node_manager: Arc<Mutex<NodeManager>>) -> Result<(),
 
         // WebSocket for real-time communication
         .route("/ws/node", get(node_ws_handler))
+
+        // WebSocket for streaming time states
+        .route("/ws/time", get(time_stream_handler))
 
         .layer(cors)
         .with_state(state);
@@ -241,5 +249,59 @@ async fn handle_node_socket(socket: WebSocket, state: NodeApiState) {
     tokio::select! {
         _ = (&mut send_task) => recv_task.abort(),
         _ = (&mut recv_task) => send_task.abort(),
+    }
+}
+
+/// WebSocket handler for streaming time states
+async fn time_stream_handler(
+    ws: WebSocketUpgrade,
+    State(state): State<NodeApiState>,
+) -> impl IntoResponse {
+    ws.on_upgrade(|socket| handle_time_stream(socket, state))
+}
+
+async fn handle_time_stream(socket: WebSocket, state: NodeApiState) {
+    let (mut sender, mut receiver) = socket.split();
+
+    // Spawn task to continuously send time state updates
+    let send_task = tokio::spawn(async move {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
+
+        loop {
+            interval.tick().await;
+
+            // Get all time states from manager
+            if let Some(time_manager) = &state.time_manager {
+                if let Ok(manager) = time_manager.lock() {
+                    if let Ok(states) = manager.get_all_states() {
+                        // Serialize and send as JSON
+                        if let Ok(json) = serde_json::to_string(&states) {
+                            if sender.send(Message::Text(json)).await.is_err() {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Handle incoming messages (close, ping, etc)
+    let mut recv_task = tokio::spawn(async move {
+        while let Some(Ok(msg)) = receiver.next().await {
+            match msg {
+                Message::Close(_) => {
+                    println!("Time stream WebSocket closed");
+                    break;
+                }
+                _ => {}
+            }
+        }
+    });
+
+    // Wait for either task to finish
+    tokio::select! {
+        _ = send_task => recv_task.abort(),
+        _ = recv_task => {},
     }
 }

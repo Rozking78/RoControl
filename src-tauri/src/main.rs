@@ -856,10 +856,11 @@ fn main() {
         }
     });
 
-    // Start node API server on port 9000
+    // Start node API server on port 9000 with time streaming
     let node_api_manager = Arc::clone(&node_manager);
+    let node_api_time_manager = Arc::clone(&time_manager);
     tauri::async_runtime::spawn(async move {
-        if let Err(e) = node_api::start_node_api(node_api_manager).await {
+        if let Err(e) = node_api::start_node_api(node_api_manager, node_api_time_manager).await {
             eprintln!("Node API server error: {}", e);
         }
     });

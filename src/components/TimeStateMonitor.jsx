@@ -8,11 +8,34 @@ const TimeStateMonitor = () => {
   const [filter, setFilter] = useState('all') // all, playing, streams, playbacks
 
   useEffect(() => {
-    loadTimeStates()
+    // Connect to WebSocket time stream
+    const ws = new WebSocket('ws://localhost:9000/ws/time')
 
-    // Auto-refresh every 250ms for smooth progress updates
-    const interval = setInterval(loadTimeStates, 250)
-    return () => clearInterval(interval)
+    ws.onopen = () => {
+      console.log('Time stream connected')
+    }
+
+    ws.onmessage = (event) => {
+      try {
+        const states = JSON.parse(event.data)
+        setTimeStates(states)
+      } catch (error) {
+        console.error('Failed to parse time states:', error)
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+
+    ws.onclose = () => {
+      console.log('Time stream disconnected')
+    }
+
+    // Cleanup on unmount
+    return () => {
+      ws.close()
+    }
   }, [])
 
   const loadTimeStates = async () => {

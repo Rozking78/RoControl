@@ -107,11 +107,11 @@
 }
 
 .time-state-card.state-paused::before {
-  background: linear-gradient(180deg, #ffaa00 0%, #ff8800 100%);
+  background: linear-gradient(180deg, #00d4ff 0%, #0080ff 100%);
 }
 
 .time-state-card.state-stopped::before {
-  background: linear-gradient(180deg, #ff4444 0%, #cc0000 100%);
+  background: linear-gradient(180deg, #ffaa00 0%, #ff8800 100%);
 }
 
 .time-state-card.state-error::before {
@@ -179,13 +179,13 @@
 }
 
 .run-state-badge.paused {
-  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #0080ff 100%);
   color: #000;
 }
 
 .run-state-badge.stopped {
-  background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  color: #000;
 }
 
 .run-state-badge.cueing {
@@ -390,23 +390,23 @@
 }
 
 .btn-pause {
-  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #0080ff 100%);
   color: #000;
 }
 
 .btn-pause:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(255, 170, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
 }
 
 .btn-stop {
-  background: linear-gradient(135deg, #666 0%, #444 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  color: #000;
 }
 
 .btn-stop:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 102, 102, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 170, 0, 0.4);
 }
 
 /* Metadata Section */
