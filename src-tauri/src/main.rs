@@ -4,6 +4,8 @@
 mod web_server;
 mod ndi_support;
 mod streamdeck_support;
+mod node_manager;
+mod node_api;
 
 use artnet_protocol::*;
 use sacn::source::SacnSource;
@@ -79,6 +81,7 @@ struct AppState {
     fixture_library: Arc<Mutex<HashMap<String, GdtfFixtureType>>>,
     programmer: Arc<Mutex<HashMap<String, u8>>>, // fixture_id:channel -> value
     streamdeck_manager: Arc<Mutex<streamdeck_support::StreamDeckManager>>,
+    node_manager: Arc<Mutex<node_manager::NodeManager>>,
 }
 
 impl DmxEngine {
@@ -420,6 +423,89 @@ fn clear_streamdeck_buttons(
     manager.clear_all_buttons(&serial)
 }
 
+// Node Manager Commands
+
+#[tauri::command]
+fn get_node_config(
+    state: State<AppState>,
+) -> std::result::Result<node_manager::NodeConfig, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_config()
+}
+
+#[tauri::command]
+fn update_node_config(
+    state: State<AppState>,
+    config: node_manager::NodeConfig,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.update_config(config)?;
+    Ok("Node configuration updated".to_string())
+}
+
+#[tauri::command]
+fn start_node_discovery(
+    state: State<AppState>,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.start_discovery()?;
+    Ok("Node discovery started".to_string())
+}
+
+#[tauri::command]
+fn advertise_node(
+    state: State<AppState>,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.advertise_self()?;
+    Ok("Node advertisement started".to_string())
+}
+
+#[tauri::command]
+fn register_node(
+    state: State<AppState>,
+    registration: node_manager::NodeRegistration,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.register_node(registration)
+}
+
+#[tauri::command]
+fn unregister_node(
+    state: State<AppState>,
+    node_id: String,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.unregister_node(&node_id)
+}
+
+#[tauri::command]
+fn get_all_nodes(
+    state: State<AppState>,
+) -> std::result::Result<Vec<node_manager::NodeInfo>, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_all_nodes()
+}
+
+#[tauri::command]
+fn get_node_info(
+    state: State<AppState>,
+    node_id: String,
+) -> std::result::Result<node_manager::NodeInfo, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_node(&node_id)
+}
+
+#[tauri::command]
+fn update_node_heartbeat(
+    state: State<AppState>,
+    heartbeat: node_manager::NodeHeartbeat,
+) -> std::result::Result<String, String> {
+    let manager = state.node_manager.lock().map_err(|e| e.to_string())?;
+    manager.update_heartbeat(heartbeat)?;
+    Ok("Heartbeat updated".to_string())
+}
+
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
@@ -435,6 +521,16 @@ fn main() {
             .unwrap_or_else(|e| {
                 eprintln!("Failed to initialize Stream Deck manager: {}", e);
                 panic!("Stream Deck initialization failed");
+            })
+    ));
+
+    // Initialize Node Manager with default config
+    let node_config = node_manager::NodeConfig::default();
+    let node_manager = Arc::new(Mutex::new(
+        node_manager::NodeManager::new(node_config)
+            .unwrap_or_else(|e| {
+                eprintln!("Failed to initialize Node Manager: {}", e);
+                panic!("Node Manager initialization failed");
             })
     ));
 
@@ -455,6 +551,14 @@ fn main() {
         }
     });
 
+    // Start node API server on port 9000
+    let node_api_manager = Arc::clone(&node_manager);
+    tauri::async_runtime::spawn(async move {
+        if let Err(e) = node_api::start_node_api(node_api_manager).await {
+            eprintln!("Node API server error: {}", e);
+        }
+    });
+
     tauri::Builder::default()
         .manage(AppState {
             dmx_engine,
@@ -462,6 +566,7 @@ fn main() {
             fixture_library,
             programmer,
             streamdeck_manager,
+            node_manager,
         })
         .invoke_handler(tauri::generate_handler![
             set_dmx_channel,
@@ -483,6 +588,15 @@ fn main() {
             read_streamdeck_buttons,
             reset_streamdeck,
             clear_streamdeck_buttons,
+            get_node_config,
+            update_node_config,
+            start_node_discovery,
+            advertise_node,
+            register_node,
+            unregister_node,
+            get_all_nodes,
+            get_node_info,
+            update_node_heartbeat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

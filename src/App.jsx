@@ -20,6 +20,7 @@ import { UndoManager, createSnapshot, applySnapshot } from './utils/undoManager'
 import SteamDeckIntegration from './components/SteamDeckIntegration'
 import SteamDeckSetup from './components/SteamDeckSetup'
 import ElgatoStreamDeckSetup from './components/ElgatoStreamDeckSetup'
+import NodeManagerSetup from './components/NodeManagerSetup'
 import ProgramTimeControl from './components/ProgramTimeControl'
 import CueExecutorTimeControl from './components/CueExecutorTimeControl'
 import ClocksConfigWindow from './components/ClocksConfigWindow'
@@ -1795,6 +1796,7 @@ function App() {
                  setupTab === 'backup' ? 'Show Backup & Recall' :
                  setupTab === 'steamdeck' ? 'Steam Deck' :
                  setupTab === 'elgatostreamdeck' ? 'Elgato Stream Deck' :
+                 setupTab === 'nodemanager' ? 'Node Manager' :
                  'Gamepad Mapping'}
               </h2>
               <button className="modal-close" onClick={() => setShowSetup(false)}>✕</button>
@@ -1836,6 +1838,12 @@ function App() {
                 onClick={() => setSetupTab('elgatostreamdeck')}
               >
                 Elgato Stream Deck
+              </button>
+              <button
+                className={`modal-tab ${setupTab === 'nodemanager' ? 'active' : ''}`}
+                onClick={() => setSetupTab('nodemanager')}
+              >
+                Node Manager
               </button>
             </div>
 
@@ -1981,6 +1989,8 @@ function App() {
                 <SteamDeckSetup />
               ) : setupTab === 'elgatostreamdeck' ? (
                 <ElgatoStreamDeckSetup />
+              ) : setupTab === 'nodemanager' ? (
+                <NodeManagerSetup />
               ) : setupTab === 'gamepad' ? (
                 <div className="setup-section">
                   <h3>Steam Input Configuration</h3>

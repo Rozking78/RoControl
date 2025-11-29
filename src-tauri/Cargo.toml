@@ -52,6 +52,7 @@ multer = "2.1"  # Multipart form data for file uploads
 dirs = "5.0"  # User directories
 bytes = "1.5"  # Byte utilities for NDI streams
 image = "0.24"  # Image processing for Stream Deck button icons
+uuid = { version = "1.6", features = ["v4"] }  # UUID generation for node IDs
 
 [features]
 default = ["custom-protocol"]
