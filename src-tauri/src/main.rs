@@ -7,6 +7,7 @@ mod streamdeck_support;
 mod node_manager;
 mod node_api;
 mod claude_session_coordinator;
+mod time_manager;
 
 use artnet_protocol::*;
 use sacn::source::SacnSource;
@@ -84,6 +85,7 @@ struct AppState {
     streamdeck_manager: Arc<Mutex<streamdeck_support::StreamDeckManager>>,
     node_manager: Arc<Mutex<node_manager::NodeManager>>,
     session_coordinator: Arc<Mutex<claude_session_coordinator::ClaudeSessionCoordinator>>,
+    time_manager: Arc<Mutex<time_manager::TimeManager>>,
 }
 
 impl DmxEngine {
@@ -622,6 +624,158 @@ fn get_session_info(
     coordinator.get_current_session()
 }
 
+// Time Manager Commands
+
+#[tauri::command]
+fn register_time_state(
+    state: State<AppState>,
+    id: String,
+    name: String,
+    source_type: String,
+    duration_type: String,
+    duration_ms: Option<u64>,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+
+    let src_type = match source_type.as_str() {
+        "video_playback" => time_manager::SourceType::VideoPlayback,
+        "audio_playback" => time_manager::SourceType::AudioPlayback,
+        "ndi_stream" => time_manager::SourceType::NdiStream,
+        "artnet_input" => time_manager::SourceType::ArtNetInput,
+        "sacn_input" => time_manager::SourceType::SacnInput,
+        "dmx_output" => time_manager::SourceType::DmxOutput,
+        "cue_list" => time_manager::SourceType::CueList,
+        "executor" => time_manager::SourceType::Executor,
+        _ => return Err(format!("Unknown source type: {}", source_type)),
+    };
+
+    let dur_type = match duration_type.as_str() {
+        "finite" => time_manager::DurationType::Finite {
+            duration_ms: duration_ms.ok_or("duration_ms required for finite type")?,
+        },
+        "indefinite" => time_manager::DurationType::Indefinite,
+        _ => return Err(format!("Unknown duration type: {}", duration_type)),
+    };
+
+    let time_state = time_manager::TimeState::new(id.clone(), name, src_type, dur_type);
+    manager.register_state(time_state)?;
+
+    Ok(format!("State {} registered", id))
+}
+
+#[tauri::command]
+fn start_time_state(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.start_state(&id)?;
+    Ok(format!("State {} started", id))
+}
+
+#[tauri::command]
+fn pause_time_state(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.pause_state(&id)?;
+    Ok(format!("State {} paused", id))
+}
+
+#[tauri::command]
+fn stop_time_state(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.stop_state(&id)?;
+    Ok(format!("State {} stopped", id))
+}
+
+#[tauri::command]
+fn update_all_time_states(
+    state: State<AppState>,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.update_all_states()?;
+    Ok("All states updated".to_string())
+}
+
+#[tauri::command]
+fn get_time_state(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<time_manager::TimeState, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_state(&id)
+}
+
+#[tauri::command]
+fn get_all_time_states(
+    state: State<AppState>,
+) -> std::result::Result<Vec<time_manager::TimeState>, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_all_states()
+}
+
+#[tauri::command]
+fn get_playing_time_states(
+    state: State<AppState>,
+) -> std::result::Result<Vec<time_manager::TimeState>, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_playing_states()
+}
+
+#[tauri::command]
+fn create_timeline(
+    state: State<AppState>,
+    name: String,
+    state_ids: Vec<String>,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.create_timeline(name, state_ids)
+}
+
+#[tauri::command]
+fn get_timeline(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<time_manager::Timeline, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_timeline(&id)
+}
+
+#[tauri::command]
+fn get_all_timelines(
+    state: State<AppState>,
+) -> std::result::Result<Vec<time_manager::Timeline>, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.get_all_timelines()
+}
+
+#[tauri::command]
+fn report_frame(
+    state: State<AppState>,
+    id: String,
+    dropped: bool,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.report_frame(&id, dropped)?;
+    Ok("Frame reported".to_string())
+}
+
+#[tauri::command]
+fn set_time_state_latency(
+    state: State<AppState>,
+    id: String,
+    latency_ms: f64,
+) -> std::result::Result<String, String> {
+    let manager = state.time_manager.lock().map_err(|e| e.to_string())?;
+    manager.set_latency(&id, latency_ms)?;
+    Ok("Latency updated".to_string())
+}
+
 // Gamepad capture removed - using Steam Input instead
 // The browser Gamepad API works natively with Steam Input
 
@@ -670,6 +824,21 @@ fn main() {
         })
     ));
 
+    // Initialize Time Manager with 30fps default
+    let time_manager = Arc::new(Mutex::new(time_manager::TimeManager::new(time_manager::Framerate::Fps30)));
+
+    // Spawn background task to update all time states every 100ms
+    let time_manager_update = Arc::clone(&time_manager);
+    tauri::async_runtime::spawn(async move {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
+        loop {
+            interval.tick().await;
+            if let Ok(manager) = time_manager_update.lock() {
+                let _ = manager.update_all_states();
+            }
+        }
+    });
+
     // Setup video directory for web remote
     let video_dir = dirs::video_dir()
         .unwrap_or_else(|| PathBuf::from("."))
@@ -704,6 +873,7 @@ fn main() {
             streamdeck_manager,
             node_manager,
             session_coordinator,
+            time_manager,
         })
         .invoke_handler(tauri::generate_handler![
             set_dmx_channel,
@@ -743,6 +913,19 @@ fn main() {
             pull_all_session_logs,
             log_session_message,
             get_session_info,
+            register_time_state,
+            start_time_state,
+            pause_time_state,
+            stop_time_state,
+            update_all_time_states,
+            get_time_state,
+            get_all_time_states,
+            get_playing_time_states,
+            create_timeline,
+            get_timeline,
+            get_all_timelines,
+            report_frame,
+            set_time_state_latency,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

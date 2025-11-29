@@ -22,6 +22,7 @@ import SteamDeckSetup from './components/SteamDeckSetup'
 import ElgatoStreamDeckSetup from './components/ElgatoStreamDeckSetup'
 import NodeManagerSetup from './components/NodeManagerSetup'
 import ClaudeSessionCoordinator from './components/ClaudeSessionCoordinator'
+import TimeStateMonitor from './components/TimeStateMonitor'
 import ProgramTimeControl from './components/ProgramTimeControl'
 import CueExecutorTimeControl from './components/CueExecutorTimeControl'
 import ClocksConfigWindow from './components/ClocksConfigWindow'
@@ -1799,6 +1800,7 @@ function App() {
                  setupTab === 'elgatostreamdeck' ? 'Elgato Stream Deck' :
                  setupTab === 'nodemanager' ? 'Node Manager' :
                  setupTab === 'claudesessions' ? 'Claude Sessions' :
+                 setupTab === 'timestates' ? 'Time Monitor' :
                  'Gamepad Mapping'}
               </h2>
               <button className="modal-close" onClick={() => setShowSetup(false)}>✕</button>
@@ -1852,6 +1854,12 @@ function App() {
                 onClick={() => setSetupTab('claudesessions')}
               >
                 Claude Sessions
+              </button>
+              <button
+                className={`modal-tab ${setupTab === 'timestates' ? 'active' : ''}`}
+                onClick={() => setSetupTab('timestates')}
+              >
+                Time Monitor
               </button>
             </div>
 
@@ -2001,6 +2009,8 @@ function App() {
                 <NodeManagerSetup />
               ) : setupTab === 'claudesessions' ? (
                 <ClaudeSessionCoordinator />
+              ) : setupTab === 'timestates' ? (
+                <TimeStateMonitor />
               ) : setupTab === 'gamepad' ? (
                 <div className="setup-section">
                   <h3>Steam Input Configuration</h3>
