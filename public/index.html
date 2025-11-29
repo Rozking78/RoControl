@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RocKontrol Media Server</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 RocKontrol Media Server</h1>
+            <div class="status-bar">
+                <span id="connection-status" class="status-indicator">●</span>
+                <span id="stream-count">0 streams active</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Stream Control Section -->
+            <section class="card">
+                <h2>New NDI Stream</h2>
+                <form id="new-stream-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Stream Name:</label>
+                            <input type="text" id="stream-name" value="RocKontrol Media" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mode:</label>
+                            <select id="stream-mode">
+                                <option value="video">Video File</option>
+                                <option value="pattern">Test Pattern</option>
+                                <option value="grid">Test Grid</option>
+                                <option value="ndi_source">NDI Source (Route/Rename)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="video-select-group">
+                            <label>Video File:</label>
+                            <select id="video-file">
+                                <option value="">Select video...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="pattern-select-group" style="display: none;">
+                            <label>Pattern Type:</label>
+                            <select id="pattern-type">
+                                <option value="gradient">Gradient</option>
+                                <option value="grid">Grid</option>
+                                <option value="smpte">SMPTE Bars</option>
+                                <option value="checkerboard">Checkerboard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="ndi-source-group" style="display: none;">
+                            <label>NDI Source:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="ndi-source-select" style="flex: 1;">
+                                    <option value="">Discovering sources...</option>
+                                </select>
+                                <button type="button" id="refresh-ndi" class="btn">🔄 Refresh</button>
+                            </div>
+                            <small style="color: #8b949e;">Select an NDI source from your network</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Resolution:</label>
+                            <select id="resolution">
+                                <option value="1920x1080" selected>1920x1080 (1080p)</option>
+                                <option value="1280x720">1280x720 (720p)</option>
+                                <option value="3840x2160">3840x2160 (4K)</option>
+                                <option value="2560x1440">2560x1440 (1440p)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frame Rate:</label>
+                            <input type="number" id="fps" value="30" step="0.1" min="1" max="120">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="loop" checked>
+                                Loop Video
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Screen Blend Controls -->
+                    <details class="blend-controls">
+                        <summary>Edge Blending (for multi-projector setups)</summary>
+                        <div class="blend-grid">
+                            <div class="form-group">
+                                <label>Left Edge: <span id="blend-left-val">0%</span></label>
+                                <input type="range" id="blend-left" min="0" max="100" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Right Edge: <span id="blend-right-val">0%</span></label>
+                                <input type="range" id="blend-right" min="0" max="100" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Top Edge: <span id="blend-top-val">0%</span></label>
+                                <input type="range" id="blend-top" min="0" max="100" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Bottom Edge: <span id="blend-bottom-val">0%</span></label>
+                                <input type="range" id="blend-bottom" min="0" max="100" value="0">
+                            </div>
+                        </div>
+                    </details>
+
+                    <button type="submit" class="btn btn-primary">Start Stream</button>
+                </form>
+            </section>
+
+            <!-- Active Streams -->
+            <section class="card">
+                <h2>Active Streams</h2>
+                <div id="streams-list" class="streams-list">
+                    <p class="empty-state">No active streams</p>
+                </div>
+            </section>
+
+            <!-- Video Library -->
+            <section class="card">
+                <h2>Video Library</h2>
+                <div class="library-controls">
+                    <button id="upload-btn" class="btn">Upload Video</button>
+                    <button id="refresh-videos" class="btn">Refresh</button>
+                    <input type="file" id="file-input" accept="video/*" style="display: none;">
+                </div>
+                <div id="videos-list" class="videos-list">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Playlists -->
+            <section class="card">
+                <h2>Playlists</h2>
+                <div class="playlist-controls">
+                    <input type="text" id="playlist-name" placeholder="New playlist name...">
+                    <button id="create-playlist" class="btn">Create Playlist</button>
+                </div>
+                <div id="playlists-list" class="playlists-list">
+                    <p class="empty-state">No playlists</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
