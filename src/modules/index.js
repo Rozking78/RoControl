@@ -47,6 +47,20 @@ export {
   switcherManager
 } from './VideoSwitcher.js';
 
+// Stream Deck Switcher Profiles
+export {
+  SwitcherButtonType,
+  SwitcherColors,
+  createSwitcherProfile,
+  createMiniSwitcherProfile,
+  createXLSwitcherProfile,
+  configureInputButton,
+  configureCutButton,
+  configureAutoButton,
+  configureFTBButton,
+  configureTransitionButton
+} from './SwitcherDeckProfile.js';
+
 /**
  * Initialize all modules with configuration
  * @param {Object} config - Configuration object
