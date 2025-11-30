@@ -35,6 +35,18 @@ export { WebSocketClient, WebSocketManager, webSocketManager } from './WebSocket
 // CLI command parsing
 export { CLIDispatcher, cliDispatcher } from './CLIDispatcher.js';
 
+// Video Switcher (Live Production)
+export {
+  TransitionType,
+  WipePattern,
+  SourceType,
+  InputSource,
+  OutputDestination,
+  VideoSwitcher,
+  SwitcherManager,
+  switcherManager
+} from './VideoSwitcher.js';
+
 /**
  * Initialize all modules with configuration
  * @param {Object} config - Configuration object

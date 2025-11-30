@@ -9,6 +9,7 @@ import { videoPlayerManager } from './VideoPlayer.js';
 import { ndiOutputManager } from './NDIOutput.js';
 import { playlistManager } from './PlaylistManager.js';
 import { clockManager } from './ClockManager.js';
+import { switcherManager, TransitionType } from './VideoSwitcher.js';
 
 class CLIDispatcher {
   constructor() {
@@ -27,7 +28,15 @@ class CLIDispatcher {
       'pl': 'playlist',
       'c': 'clock',
       'clk': 'clock',
-      'trr': 'timeremaining'
+      'trr': 'timeremaining',
+      // Switcher aliases
+      'pgm': 'program',
+      'pvw': 'preview',
+      'prv': 'preview',
+      'ftb': 'fadetoblack',
+      'diss': 'dissolve',
+      'trans': 'transition',
+      'in': 'input'
     };
 
     // Listen for CLI commands from other sources
@@ -202,6 +211,76 @@ class CLIDispatcher {
 
     if (command === 'clocks' || command === 'list clocks') {
       return this._handleListClocks();
+    }
+
+    // ==================== SWITCHER COMMANDS ====================
+
+    // CUT - instant switch
+    if (command === 'cut') {
+      return this._handleSwitcherCut();
+    }
+
+    // AUTO/TAKE - transition
+    if (command === 'auto' || command === 'take') {
+      return this._handleSwitcherAuto();
+    }
+
+    // FTB - Fade to Black
+    if (command === 'fadetoblack' || command === 'ftb') {
+      return this._handleSwitcherFTB();
+    }
+
+    // Preview input: preview 1, pvw 2
+    const previewMatch = command.match(/^preview\s+(\d+)$/);
+    if (previewMatch) {
+      return this._handleSwitcherPreview(parseInt(previewMatch[1]));
+    }
+
+    // Program input: program 1, pgm 2
+    const programMatch = command.match(/^program\s+(\d+)$/);
+    if (programMatch) {
+      return this._handleSwitcherProgram(parseInt(programMatch[1]));
+    }
+
+    // Load input: input 1 /path/to/video.mp4
+    const inputLoadMatch = command.match(/^input\s+(\d+)\s+(.+)$/);
+    if (inputLoadMatch) {
+      return this._handleSwitcherLoadInput(parseInt(inputLoadMatch[1]), inputLoadMatch[2]);
+    }
+
+    // Transition type: transition cut, transition dissolve
+    const transitionTypeMatch = command.match(/^transition\s+(cut|dissolve|fade|wipe|dip)$/);
+    if (transitionTypeMatch) {
+      return this._handleSwitcherTransitionType(transitionTypeMatch[1]);
+    }
+
+    // Transition duration: transition time 1000
+    const transitionTimeMatch = command.match(/^transition\s+time\s+(\d+)$/);
+    if (transitionTimeMatch) {
+      return this._handleSwitcherTransitionTime(parseInt(transitionTimeMatch[1]));
+    }
+
+    // T-bar position: tbar 0.5
+    const tbarMatch = command.match(/^tbar\s+([\d.]+)$/);
+    if (tbarMatch) {
+      return this._handleSwitcherTBar(parseFloat(tbarMatch[1]));
+    }
+
+    // Route input to output: route input 1 output 2
+    const routeInputMatch = command.match(/^route\s+input\s+(\d+)\s+output\s+(\d+)$/);
+    if (routeInputMatch) {
+      return this._handleSwitcherRoute(parseInt(routeInputMatch[1]), parseInt(routeInputMatch[2]));
+    }
+
+    // Switcher status
+    if (command === 'switcher' || command === 'switcher status') {
+      return this._handleSwitcherStatus();
+    }
+
+    // Quick switch: just a number sets preview and cuts
+    const quickSwitchMatch = command.match(/^(\d)$/);
+    if (quickSwitchMatch) {
+      return this._handleQuickSwitch(parseInt(quickSwitchMatch[1]));
     }
 
     // Unknown command
@@ -486,10 +565,137 @@ class CLIDispatcher {
     };
   }
 
+  // ==================== SWITCHER HANDLERS ====================
+
+  _handleSwitcherCut() {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().cut();
+  }
+
+  _handleSwitcherAuto() {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().auto();
+  }
+
+  _handleSwitcherFTB() {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().fadeToBlack();
+  }
+
+  _handleSwitcherPreview(inputId) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().preview(inputId);
+  }
+
+  _handleSwitcherProgram(inputId) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().program(inputId);
+  }
+
+  _handleSwitcherLoadInput(inputId, source) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().loadInput(inputId, source.trim());
+  }
+
+  _handleSwitcherTransitionType(type) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().setTransitionType(type);
+  }
+
+  _handleSwitcherTransitionTime(ms) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().setTransitionDuration(ms);
+  }
+
+  _handleSwitcherTBar(position) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().setTBar(position);
+  }
+
+  _handleSwitcherRoute(inputId, outputId) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    return switcherManager.get().routeToOutput(inputId, outputId);
+  }
+
+  _handleSwitcherStatus() {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    const state = switcherManager.get().getState();
+    const lines = [
+      `Switcher: ${state.name}`,
+      `Program: Input ${state.program}`,
+      `Preview: Input ${state.preview}`,
+      `Transition: ${state.transitionType} (${state.transitionDuration}ms)`,
+      `FTB: ${state.ftbActive ? 'ACTIVE' : 'Off'}`,
+      `Inputs: ${state.inputs.filter(i => i.connected).length} connected`
+    ];
+    return {
+      success: true,
+      message: lines.join('\n'),
+      data: state
+    };
+  }
+
+  _handleQuickSwitch(inputId) {
+    const switcher = switcherManager.get();
+    if (!switcher) {
+      switcherManager.initialize();
+    }
+    // Set preview and cut
+    switcherManager.get().preview(inputId);
+    return switcherManager.get().cut();
+  }
+
   _handleHelp() {
     const help = `
 RocKontrol Media Server Commands
 ================================
+
+VIDEO SWITCHER (Live Production):
+  cut                     Instant switch PVW to PGM
+  auto / take             Transition PVW to PGM
+  preview 1 / pvw 1       Set input 1 to preview
+  program 1 / pgm 1       Set input 1 to program
+  1-8                     Quick switch to input
+  input 1 /path/video.mp4 Load video into input slot
+  transition dissolve     Set transition type
+  transition time 1000    Set transition duration (ms)
+  tbar 0.5                Manual T-bar control
+  ftb                     Fade to Black toggle
+  route input 1 output 2  Direct route input to output
+  switcher                Show switcher status
 
 Video Control:
   play video1 output1     Start playback to output
